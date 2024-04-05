@@ -54,7 +54,7 @@ trait HttpResponses
         return response()->json([
             'status' => 'Error has occured',
             'message' => $message,
-            'error' => $data
+            'errors' => $data
         ], $code);
     }
 
@@ -79,7 +79,7 @@ trait HttpResponses
         return response()->json([
             'status' => "ValidationException",
             'message' => $message,
-            'error' => $errors,
+            'errors' => $errors,
         ], $code);
     }
 

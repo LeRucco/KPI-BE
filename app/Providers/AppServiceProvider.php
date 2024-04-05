@@ -2,11 +2,17 @@
 
 namespace App\Providers;
 
+use App\Enums\PermissionEnum;
+use App\Models\User;
 use App\Enums\RoleEnum;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Models\Attendance;
+use App\Policies\AttendancePolicy;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
-use App\Models\User;
+use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -27,7 +33,10 @@ class AppServiceProvider extends ServiceProvider
             return config('app.frontend_url') . "/password-reset/$token?email={$notifiable->getEmailForPasswordReset()}";
         });
         Gate::before(function (User $user, $ability) {
-            $user->hasRole(RoleEnum::SUPER_ADMIN) ? true : null;
+            // Log::info($ability);
+            return $user->hasRole(RoleEnum::SUPER_ADMIN->value, 'web') ? true : null;
         });
+
+        Gate::policy(Attendance::class, AttendancePolicy::class);
     }
 }

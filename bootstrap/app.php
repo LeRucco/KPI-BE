@@ -23,5 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        /**
+         * Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException
+         * Symfony\\Component\\HttpKernel\\Exception\\AccessDeniedHttpException
+         * MyValidationException
+         * Illuminate\\Database\\QueryException
+         */
     })->create();
