@@ -16,25 +16,24 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $rolesCollection =  collect(RoleEnum::cases())->map(function (RoleEnum $role) {
-            return ['name' => $role->value, 'guard_name' => 'web']; // TODO guard_name api ?
+            return ['name' => $role->value, 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()]; // TODO guard_name api ?
         });
 
         $permissionCollection = collect(PermissionEnum::cases())->map(function (PermissionEnum $permission) {
-            return ['name' => $permission->value,  'guard_name' => 'web']; // TODO guard_name api ?
+            return ['name' => $permission->value,  'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()]; // TODO guard_name api ?
         });
-
-        // Role::create(['name' => 'writer']);
-        // Permission::create(['name' => 'edit articles']);
 
         Role::insert($rolesCollection->toArray());
         Permission::insert($permissionCollection->toArray());
 
-        /** Defining User Admin in AppServiceProvider */
-        // $roleSuperAdmin = Role::findByName(RoleEnum::SUPER_ADMIN->value);
-        // $roleSuperAdmin->givePermissionTo($permissionCollection->pluck('name'));
-
         $roleAdmin = Role::findByName(RoleEnum::ADMIN->value);
-        $roleAdmin->givePermissionTo($permissionCollection->pluck('name'));
+        $roleAdmin->givePermissionTo([
+            PermissionEnum::KPI_CREATE,
+            PermissionEnum::KPI_READ,
+            PermissionEnum::KPI_READTRASHED,
+            PermissionEnum::KPI_UPDATE,
+            PermissionEnum::KPI_DELETE,
+        ]);
 
         $roleDeveloper = Role::findByName(RoleEnum::DEVELOPER->value);
         $roleDeveloper->givePermissionTo($permissionCollection->pluck('name'));
