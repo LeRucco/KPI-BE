@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\PermissionEnum;
+use Carbon\Carbon;
+use App\Models\User;
 use App\Enums\RoleEnum;
+use App\Enums\PermissionEnum;
 
 class DevController extends Controller
 {
@@ -24,5 +26,15 @@ class DevController extends Controller
         return collect(PermissionEnum::cases())->map(function (PermissionEnum $permission) {
             return ['name' => $permission->value];
         })->toArray(); //->pluck('name');
+    }
+
+    public function hesoyam()
+    {
+        $users = User::where('full_name', '!=', 'developer')->get(['id', 'nrp', 'full_name']);
+        return collect($users->map(function ($user) {
+            $token = $user->createToken('Token ' . $user->nrp, [], Carbon::now()->addDays(14));
+            return ['name' => $user->full_name, 'token' => $token->plainTextToken];
+            // return $user->nrp;
+        }));
     }
 }
