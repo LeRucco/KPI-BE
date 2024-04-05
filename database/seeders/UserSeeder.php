@@ -41,5 +41,11 @@ class UserSeeder extends Seeder
             'full_name' => 'budi',
             'password' => Hash::make('budi')
         ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => 'coco',
+            'full_name' => 'coco',
+            'password' => Hash::make('coco')
+        ]);
     }
 }
