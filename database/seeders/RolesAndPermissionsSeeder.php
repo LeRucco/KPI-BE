@@ -52,9 +52,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
             PermissionEnum::ATTENDANCEFILE_READ,
 
-            PermissionEnum::JOB_READ,
+            PermissionEnum::WORK_READ,
 
-            PermissionEnum::JOBRATIO_READ,
+            PermissionEnum::WORK_READ,
 
             PermissionEnum::PAYCHECKFILE_READ,
         ]);
