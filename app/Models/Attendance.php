@@ -35,7 +35,10 @@ class Attendance extends Model
         /** @var \App\Models\User */
         $user = Auth::user();
 
-        if ($user->can(PermissionEnum::ATTENDANCE_READTRASHED->value))
+        if ($user->canAny([
+            PermissionEnum::KPI_READTRASHED->value,
+            PermissionEnum::ATTENDANCE_READTRASHED->value,
+        ]))
             return $this::withTrashed()->find($id);
 
         return $this::find($id);

@@ -16,13 +16,13 @@ class AttendancePolicy
     public function before(): bool | null
     {
         /** @var \App\Models\User | null */
-        $user = Auth::user();
+        $userAuth = Auth::user();
 
-        if ($user === null) return false;
+        if ($userAuth === null) return false;
 
         if (
-            $user->hasRole(RoleEnum::ADMIN->value)
-            || $user->hasRole(RoleEnum::DEVELOPER->value)
+            $userAuth->hasRole(RoleEnum::ADMIN->value)
+            || $userAuth->hasRole(RoleEnum::DEVELOPER->value)
         )
             return true;
 
@@ -39,9 +39,6 @@ class AttendancePolicy
             PermissionEnum::KPI_READTRASHED->value
         ]))
             return true;
-
-        // if ($user->can(PermissionEnum::KPI_READ->value))
-        //     return true;
 
         return false;
     }
