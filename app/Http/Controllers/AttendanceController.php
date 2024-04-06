@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Attendance;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
+use App\Interfaces\ApiBasicReadInterfaces;
 use App\Enums\AttendanceStatusEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -18,7 +19,7 @@ use App\Data\Attendance\AttendanceCreateRequest;
 use App\Data\Attendance\AttendanceUpdateRequest;
 use App\Data\Attendance\AttendanceUpdateStatusRequest;
 
-class AttendanceController extends Controller
+class AttendanceController extends Controller implements ApiBasicReadInterfaces
 {
     const route = 'attendance';
 
@@ -173,7 +174,7 @@ class AttendanceController extends Controller
         return $this->error(null, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
-    private function readTrashedOrNot(): \Illuminate\Database\Eloquent\Builder
+    public function readTrashedOrNot(): \Illuminate\Database\Eloquent\Builder
     {
         /** @var \App\Models\User */
         $userAuth = Auth::user();

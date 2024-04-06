@@ -10,11 +10,12 @@ use Illuminate\Http\Response;
 use App\Data\Work\WorkResponse;
 use App\Data\Work\WorkUpdateRequest;
 use App\Exceptions\ModelTrashedException;
+use App\Interfaces\ApiBasicReadInterfaces;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Spatie\LaravelData\PaginatedDataCollection;
 
-class WorkController extends Controller
+class WorkController extends Controller implements ApiBasicReadInterfaces
 {
     const route = 'work';
 
@@ -110,7 +111,7 @@ class WorkController extends Controller
         return $this->error(null, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
-    private function readTrashedOrNot(): \Illuminate\Database\Eloquent\Builder
+    public function readTrashedOrNot(): \Illuminate\Database\Eloquent\Builder
     {
         /** @var \App\Models\User */
         $userAuth = Auth::user();
