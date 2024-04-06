@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DevController;
+use App\Http\Controllers\WorkController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,6 +23,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(AttendanceController::route . '/{user}/user', [AttendanceController::class, 'user']);
     Route::post(AttendanceController::route . '/{attendance}/restore', [AttendanceController::class, 'restore']);
     Route::put(AttendanceController::route . '/{attendance}/update-status', [AttendanceController::class, 'updateStatus']);
+
+    /** Work */
+    Route::apiResource(WorkController::route, WorkController::class);
+    Route::post(WorkController::route . '/{work}/restore', [WorkController::class, 'restore']);
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
