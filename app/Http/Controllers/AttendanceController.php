@@ -5,24 +5,24 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Attendance;
-use Illuminate\Http\Request;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
 use App\Enums\AttendanceStatusEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use App\Exceptions\ModelTrashedException;
+use App\Exceptions\MyValidationException;
 use App\Data\Attendance\AttendanceResponse;
 use Spatie\LaravelData\PaginatedDataCollection;
 use App\Data\Attendance\AttendanceCreateRequest;
 use App\Data\Attendance\AttendanceUpdateRequest;
 use App\Data\Attendance\AttendanceUpdateStatusRequest;
-use App\Exceptions\MyValidationException;
 
 class AttendanceController extends Controller
 {
     const route = 'attendance';
 
-    public function index(Request $req)
+    public function index()
     {
         Gate::authorize('viewAny', [Attendance::class]);
 
@@ -136,8 +136,8 @@ class AttendanceController extends Controller
     {
         Gate::authorize('delete', [$attendance]);
 
-        if ($attendance->trashed()) // TODO better throw exception / return success gini aja ??
-            return $this->success([], Response::HTTP_OK, 'Already soft deleted');
+        if ($attendance->trashed())
+            throw ModelTrashedException::alreadySoftDeleted();
 
         (bool) $isSuccess = $attendance->delete();
         (array) $data = AttendanceResponse::from(
@@ -147,6 +147,7 @@ class AttendanceController extends Controller
 
         if ($isSuccess)
             return $this->success($data, Response::HTTP_OK, 'TODO');
+
         return $this->error($data, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
@@ -154,8 +155,8 @@ class AttendanceController extends Controller
     {
         Gate::authorize('restore', [$attendance]);
 
-        if (!$attendance->trashed()) // TODO better throw exception / return success gini aja ??
-            return $this->success([], Response::HTTP_OK, 'Data still exists');
+        if (!$attendance->trashed())
+            throw ModelTrashedException::stillExist();
 
         (bool) $isSuccess = $attendance->restore();
 
@@ -182,8 +183,8 @@ class AttendanceController extends Controller
             PermissionEnum::ATTENDANCE_READTRASHED->value,
         ]))
             return Attendance::query()->withTrashed();
-        else
-            return Attendance::query();
+
+        return Attendance::query();
     }
 
     private function clockValidity(?Carbon $clockIn, ?Carbon $clockOut)
