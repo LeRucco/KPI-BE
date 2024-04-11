@@ -2,9 +2,13 @@
 
 namespace App\Data\Work;
 
+use App\Models\Work;
+use App\Models\WorkRatio;
 use Carbon\CarbonImmutable;
+use Spatie\LaravelData\Lazy;
 use Spatie\LaravelData\Resource;
 use App\Models\Custom\MyCarbonImmutable;
+use App\Data\WorkRatio\WorkRatioResponse;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
@@ -15,7 +19,7 @@ class WorkResponse extends Resource
     public function __construct(
         public string $id,
 
-        // TODO WorkRatio
+        public Lazy | WorkRatio $workRatio,
 
         public string $name,
 
@@ -30,5 +34,20 @@ class WorkResponse extends Resource
         #[WithCastAndTransformer(MyCarbonImmutable::class)]
         public CarbonImmutable $updatedAt,
     ) {
+    }
+
+    public static function fromModel(Work $work): WorkResponse
+    {
+        $workRatioData = Lazy::create(fn () => WorkRatioResponse::from($work->ratio));
+
+        return new WorkResponse(
+            $work->id,
+            $workRatioData,
+            $work->name,
+            $work->description,
+            CarbonImmutable::make($work->deleted_at),
+            CarbonImmutable::make($work->created_at),
+            CarbonImmutable::make($work->updated_at),
+        );
     }
 }

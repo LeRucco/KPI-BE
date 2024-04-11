@@ -28,7 +28,9 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
                 ->orderBy('id', 'asc')
                 ->paginate(),
             PaginatedDataCollection::class
-        )->toArray();
+        )
+            ->include('workRatio')
+            ->toArray();
 
         return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
     }
