@@ -16,11 +16,11 @@ class RolesAndPermissionsSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $rolesCollection =  collect(RoleEnum::cases())->map(function (RoleEnum $role) {
-            return ['name' => $role->value, 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()]; // TODO guard_name api ?
+            return ['name' => $role->value, 'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()];
         });
 
         $permissionCollection = collect(PermissionEnum::cases())->map(function (PermissionEnum $permission) {
-            return ['name' => $permission->value,  'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()]; // TODO guard_name api ?
+            return ['name' => $permission->value,  'guard_name' => 'web', 'created_at' => now(), 'updated_at' => now()];
         });
 
         Role::insert($rolesCollection->toArray());

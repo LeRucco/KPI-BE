@@ -54,10 +54,10 @@ class WorkPolicy
         ]))
             return true;
 
-        if (
-            $user->can(PermissionEnum::WORK_READ->value)
-            && $user->id === $work->user_id
-        )
+        if ($user->canAny([
+            PermissionEnum::WORK_READ->value,
+            PermissionEnum::WORK_READTRASHED->value,
+        ]))
             return true;
 
         return false;
