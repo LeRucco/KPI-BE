@@ -7,17 +7,23 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Work extends Model
 {
     use SoftDeletes;
+
+    protected $table = 'works';
 
     protected $fillable = [
         'name',
         'description',
     ];
 
-    // TODO WorkRation HasOne
+    public function ratio(): HasOne
+    {
+        return $this->hasOne(WorkRatio::class, 'work_id', 'id');
+    }
 
     public function resolveRouteBinding($id, $field = null): \Illuminate\Database\Eloquent\Model|null
     {
