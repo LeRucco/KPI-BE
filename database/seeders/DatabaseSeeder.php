@@ -24,6 +24,7 @@ class DatabaseSeeder extends Seeder
             RolesAndPermissionsSeeder::class,
             UserSeeder::class,
             WorkSeeder::class,
+            WorkRatioSeeder::class,
             AttendanceSeeder::class,
         ]);
     }
