@@ -2,7 +2,6 @@
 
 namespace App\Data\WorkRatio;
 
-use App\Data\Job\JobResponse;
 use App\Data\Work\WorkResponse;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Resource;
@@ -10,9 +9,6 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 use App\Models\Custom\MyCarbonImmutable;
 use App\Models\Custom\MyDecimal;
-use App\Models\JobRatio;
-use App\Models\Job;
-use App\Models\Work;
 use App\Models\WorkRatio;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Lazy;
@@ -25,7 +21,7 @@ class WorkRatioResponse extends Resource
 
         public string $workId,
 
-        public Lazy | Work $work,
+        public Lazy | WorkResponse $work,
 
         #[WithCastAndTransformer(MyDecimal::class)]
         public float $percentage,

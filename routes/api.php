@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DevController;
@@ -34,6 +35,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     /** Work Ratio */
     Route::apiResource(WorkRatioController::route, WorkRatioController::class);
     Route::post(WorkRatioController::route . '/{work_ratio}/restore', [WorkRatioController::class, 'restore']);
+
+    /** Assignment */
+    Route::apiResource(AssignmentController::route, AssignmentController::class);
+    Route::get(AssignmentController::route . '/{user}/user', [AssignmentController::class, 'user']);
+    Route::post(AssignmentController::route . '/{assignment}/restore', [AssignmentController::class, 'restore']);
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

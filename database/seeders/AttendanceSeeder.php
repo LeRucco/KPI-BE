@@ -14,6 +14,8 @@ class AttendanceSeeder extends Seeder
     {
         /** @var \App\Models\User */
         $asep = User::where('full_name', '=', 'asep')->first();
+
+        /** @var \App\Models\User */
         $budi = User::where('full_name', '=', 'budi')->first();
 
         for ($i = 1; $i <= 31; $i++) {

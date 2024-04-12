@@ -4,7 +4,6 @@ namespace App\Data\Attendance;
 
 
 use Carbon\Carbon;
-use App\Models\User;
 use App\Models\Attendance;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Lazy;
@@ -26,7 +25,7 @@ class AttendanceResponse extends Resource
 
         public string $userId,
 
-        public Lazy | User $user,
+        public Lazy | UserResponse $user,
 
         #[WithCastAndTransformer(MyCarbon::class)]
         public ?Carbon $clockIn,
@@ -58,13 +57,13 @@ class AttendanceResponse extends Resource
 
     public static function fromModel(Attendance $attendance): AttendanceResponse
     {
-        $user = Lazy::create(fn () => UserResponse::from($attendance->user));
+        $userData = Lazy::create(fn () => UserResponse::from($attendance->user));
         $status = AttendanceStatusEnum::from($attendance->status);
 
         return new AttendanceResponse(
             $attendance->id,
             $attendance->user_id,
-            $user,
+            $userData,
             Carbon::make($attendance->clock_in),
             Carbon::make($attendance->clock_out),
             $attendance->description,

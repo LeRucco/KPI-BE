@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\WorkRatio;
-use Illuminate\Http\Request;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +24,7 @@ class WorkRatioController extends Controller implements ApiBasicReadInterfaces
 
         (array) $data = WorkRatioResponse::collect(
             $this->readTrashedOrNot()
-                ->orderBy('id', 'asc')
+                ->orderBy('id', 'desc')
                 ->paginate(),
             PaginatedDataCollection::class
         )

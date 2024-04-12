@@ -19,7 +19,7 @@ class WorkResponse extends Resource
     public function __construct(
         public string $id,
 
-        public Lazy | WorkRatio $workRatio,
+        public Lazy | WorkRatioResponse $workRatio,
 
         public string $name,
 

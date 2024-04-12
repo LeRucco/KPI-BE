@@ -155,7 +155,10 @@ class AttendancePolicy
             return true;
 
         if (
-            $user->can(PermissionEnum::ATTENDANCE_READ->value)
+            $user->canAny([
+                PermissionEnum::ATTENDANCE_READ->value,
+                PermissionEnum::ATTENDANCE_READTRASHED->value
+            ])
             && $user->id === $userModelBinding->id
         )
             return true;
