@@ -8,6 +8,7 @@ use App\Enums\PermissionEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Assignment extends Model
@@ -34,6 +35,11 @@ class Assignment extends Model
     public function work(): BelongsTo
     {
         return $this->belongsTo(Work::class, 'work_id', 'id');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(AssignmentImage::class, 'assignment_id', 'id');
     }
 
     public function resolveRouteBinding($id, $field = null): \Illuminate\Database\Eloquent\Model|null
