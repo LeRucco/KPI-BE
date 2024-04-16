@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Enums\RoleEnum;
 use App\Enums\PermissionEnum;
 use App\Models\Assignment;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -90,7 +89,7 @@ class AssignmentPolicy
             return true;
 
         if (
-            $user->can(PermissionEnum::ATTENDANCE_UPDATE->value)
+            $user->can(PermissionEnum::ASSIGNMENT_UPDATE->value)
             && $user->id === $assignment->user_id
         )
             return true;

@@ -3,16 +3,19 @@
 namespace App\Data\Assignment;
 
 use Carbon\Carbon;
+use App\Models\Assignment;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Lazy;
-use App\Models\Custom\MyCarbon;
-use Spatie\LaravelData\Resource;
 use App\Data\User\UserResponse;
 use App\Data\Work\WorkResponse;
-use App\Models\Assignment;
+use App\Models\Custom\MyCarbon;
+use Spatie\LaravelData\Resource;
+use Spatie\LaravelData\DataCollection;
 use App\Models\Custom\MyCarbonImmutable;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
+use Spatie\LaravelData\Attributes\DataCollectionOf;
+use App\Data\AssignmentImage\AssignmentImageResponse;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 #[MapName(SnakeCaseMapper::class)]
@@ -28,6 +31,9 @@ class AssignmentResponse extends Resource
         public string $workId,
 
         public Lazy | WorkResponse $work,
+
+        #[DataCollectionOf(AssignmentImageResponse::class)]
+        public DataCollection $images,
 
         #[WithCastAndTransformer(MyCarbon::class)]
         public Carbon $date,
@@ -53,9 +59,17 @@ class AssignmentResponse extends Resource
 
     public static function fromModel(Assignment $assignment): AssignmentResponse
     {
+        // TODO Include When Lazy Condition
+        // https://spatie.be/docs/laravel-data/v4/as-a-resource/lazy-properties#content-types-of-lazy-properties
         $userData = Lazy::create(fn () => UserResponse::from($assignment->user));
 
         $workData = Lazy::create(fn () => WorkResponse::from($assignment->work));
+
+        /** @var DataCollection */
+        $imagesData = AssignmentImageResponse::collect(
+            $assignment->images,
+            DataCollection::class
+        )->except('assignmentId');
 
         return new AssignmentResponse(
             $assignment->id,
@@ -63,6 +77,7 @@ class AssignmentResponse extends Resource
             $userData,
             $assignment->work_id,
             $workData,
+            $imagesData,
             Carbon::make($assignment->date),
             $assignment->description,
             $assignment->latitude,
