@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\AssignmentImageController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DevController;
@@ -40,6 +41,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource(AssignmentController::route, AssignmentController::class);
     Route::get(AssignmentController::route . '/{user}/user', [AssignmentController::class, 'user']);
     Route::post(AssignmentController::route . '/{assignment}/restore', [AssignmentController::class, 'restore']);
+
+    /** Assignment Image */
+    Route::apiResource(AssignmentImageController::route, AssignmentImageController::class);
+    Route::get(AssignmentImageController::route . '/{user}/user', [AssignmentImageController::class, 'user']);
+    Route::post(AssignmentImageController::route . '/{assignment_image}/restore', [AssignmentImageController::class, 'restore']);
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
