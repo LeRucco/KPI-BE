@@ -58,7 +58,7 @@ class AssignmentImageController extends Controller
 
     public function destroy(Assignment $assignment, string $uuid)
     {
-        // TODO policy
+        Gate::authorize('deleteImage', [$assignment]);
 
         /** @var \Illumintate/Suppoert/Collection<int, Media> */
         $assignmentMedia = $assignment->getMedia(Assignment::IMAGE);
@@ -78,10 +78,4 @@ class AssignmentImageController extends Controller
 
         return $this->error([], Response::HTTP_BAD_REQUEST, 'TODO');
     }
-
-    // public function destroy(AssignmentImage $assignmentImage)
-    // {
-    //     return $assignmentImage->clearMediaCollection(AssignmentImage::ASSIGNMENT);
-    // }
-
 }

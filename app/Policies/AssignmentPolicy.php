@@ -163,6 +163,23 @@ class AssignmentPolicy
     }
 
     /**
+     * Determine whether the user can delete assignment image model.
+     */
+    public function deleteImage(User $user, Assignment $assignment): bool
+    {
+        if ($user->can(PermissionEnum::KPI_DELETE->value))
+            return true;
+
+        if (
+            $user->can(PermissionEnum::ASSIGNMENTIMAGE_DELETE->value)
+            && $user->id === $assignment->user_id
+        )
+            return true;
+
+        return false;
+    }
+
+    /**
      * Determine whether the user can restore the model.
      */
     public function restore(User $user, Assignment $assignment): bool
