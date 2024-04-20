@@ -42,6 +42,17 @@ class AssignmentPolicy
         return false;
     }
 
+    public function viewAnyImages(User $user): bool
+    {
+        if ($user->canAny([
+            PermissionEnum::KPI_READ->value,
+            PermissionEnum::KPI_READTRASHED->value
+        ]))
+            return true;
+
+        return false;
+    }
+
     /**
      * Determine whether the user can view the model.
      */
@@ -67,6 +78,29 @@ class AssignmentPolicy
     }
 
     /**
+     * Determine whether the user can view the assignment images model
+     */
+    public function viewImages(User $user, Assignment $assignment): bool
+    {
+        if ($user->canAny([
+            PermissionEnum::KPI_READ->value,
+            PermissionEnum::KPI_READTRASHED->value
+        ]))
+            return true;
+
+        if (
+            $user->canAny([
+                PermissionEnum::ASSIGNMENTIMAGE_READ->value,
+                PermissionEnum::ASSIGNMENTIMAGE_READTRASHED->value,
+            ])
+            && $user->id === $assignment->user_id
+        )
+            return true;
+
+        return false;
+    }
+
+    /**
      * Determine whether the user can create models.
      */
     public function create(User $user): bool
@@ -75,6 +109,20 @@ class AssignmentPolicy
             return true;
 
         if ($user->can(PermissionEnum::ASSIGNMENT_CREATE->value))
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can create assignment image models.
+     */
+    public function createImages(User $user): bool
+    {
+        if ($user->can(PermissionEnum::KPI_CREATE->value))
+            return true;
+
+        if ($user->can(PermissionEnum::ASSIGNMENTIMAGE_CREATE->value))
             return true;
 
         return false;

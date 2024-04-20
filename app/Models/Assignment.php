@@ -10,10 +10,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Assignment extends Model
+class Assignment extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
+
+    const IMAGE = 'assignment_image';
 
     protected $table = 'assignments';
 
@@ -54,5 +58,17 @@ class Assignment extends Model
             return $this::withTrashed()->find($id);
 
         return $this::find($id);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection($this::IMAGE)
+            ->useDisk($this::IMAGE);
+        // ->registerMediaConversions(function (Media $media) {
+        //     $this
+        //         ->addMediaConversion('thumb')
+        //         ->width(50)
+        //         ->height(50);
+        // });
     }
 }

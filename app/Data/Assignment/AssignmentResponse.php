@@ -16,7 +16,9 @@ use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use App\Data\AssignmentImage\AssignmentImageResponse;
+use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 #[MapName(SnakeCaseMapper::class)]
 class AssignmentResponse extends Resource
@@ -67,9 +69,9 @@ class AssignmentResponse extends Resource
 
         /** @var DataCollection */
         $imagesData = AssignmentImageResponse::collect(
-            $assignment->images,
+            $assignment->getMedia(Assignment::IMAGE),
             DataCollection::class
-        )->except('assignmentId');
+        );
 
         return new AssignmentResponse(
             $assignment->id,

@@ -66,15 +66,31 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
     function store(AssignmentCreateRequest $req)
     {
         Gate::authorize('create', [Assignment::class]);
+        Gate::authorize('createImages', [Assignment::class]);
+
+        // TODO Database Transaction
+        /**
+         * Jika Assignment berhasil create, tapi addMedia images nya gagal,
+         * maka rollback Assignment Create nya
+         * */
+
 
         /** @var \App\Models\User */
         $userAuth = Auth::user();
 
         /** @var \App\Models\Assignment */
         $assignment = Assignment::create(array_merge(
-            $req->toArray(),
+            $req->except('images')->toArray(),
             ['user_id' => $userAuth->id]
         ));
+
+        if ($req->images !== null)
+            foreach ($req->images as $index => $uploadedFile) {
+                $assignment
+                    ->addMedia($uploadedFile)
+                    ->usingName($assignment->id . '-' . $assignment->user_id . '-' . $assignment->work_id . '-' . $index)
+                    ->toMediaCollection(Assignment::IMAGE);
+            }
 
         (array) $data = AssignmentResponse::from(
             $assignment
@@ -116,7 +132,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
             throw ModelTrashedException::alreadySoftDeleted();
 
         $isSuccess = $assignment->delete();
-        $data = AssignmentResponse::from(
+        (array) $data = AssignmentResponse::from(
             $assignment
         )
             ->include('')

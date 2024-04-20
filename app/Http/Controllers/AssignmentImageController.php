@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\AssignmentImage\AssignmentImageCreateRequest;
+use App\Data\AssignmentImage\AssignmentImageDeleteRequest;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
 use App\Models\AssignmentImage;
@@ -9,53 +11,77 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Interfaces\ApiBasicReadInterfaces;
 use App\Data\AssignmentImage\AssignmentImageResponse;
-use Spatie\LaravelData\PaginatedDataCollection;
+use App\Exceptions\MediaModelException;
+use App\Models\Assignment;
+use Illuminate\Support\Facades\Log;
+use Spatie\LaravelData\DataCollection;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class AssignmentImageController extends Controller implements ApiBasicReadInterfaces
+class AssignmentImageController extends Controller
 {
     const route = 'assignment-image';
 
-    public function index()
+    public function show(Assignment $assignment)
     {
-        Gate::authorize('viewAny', [AssignmentImage::class]);
+        Gate::authorize('viewImages', [$assignment]);
 
         (array) $data = AssignmentImageResponse::collect(
-            $this->readTrashedOrNot()
-                ->orderBy('id', 'desc')
-                ->paginate(),
-            PaginatedDataCollection::class
+            $assignment->getMedia(Assignment::IMAGE),
+            DataCollection::class
         )->toArray();
-
-        return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
-    }
-
-    public function show(AssignmentImage $assignmentImage)
-    {
-        Gate::authorize('view', [$assignmentImage]);
-
-        (array) $data = AssignmentImageResponse::from(
-            $assignmentImage
-        )
-            ->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
-    public function store()
+    public function store(AssignmentImageCreateRequest $req)
     {
+        Gate::authorize('createImages', [Assignment::class]);
+
+        /** @var \App\Models\Assignment */
+        $assignment = Assignment::findOrFail($req->assignmentId)->first();
+
+        if ($req->images !== null)
+            foreach ($req->images as $index => $uploadedFile) {
+                $assignment
+                    ->addMedia($uploadedFile)
+                    ->usingName($assignment->id . '-' . $assignment->user_id . '-' . $assignment->work_id . '-' . $index)
+                    ->toMediaCollection(Assignment::IMAGE);
+            }
+
+        (array) $data = AssignmentImageResponse::collect(
+            $assignment->getMedia(Assignment::IMAGE),
+            DataCollection::class
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_CREATED, 'TODO');
     }
 
-    public function readTrashedOrNot(): \Illuminate\Database\Eloquent\Builder
+    public function destroy(Assignment $assignment, string $uuid)
     {
-        /** @var \App\Models\User */
-        $userAuth = Auth::user();
+        // TODO policy
 
-        if ($userAuth->canAny([
-            PermissionEnum::KPI_READTRASHED->value,
-            PermissionEnum::ASSIGNMENTIMAGE_READTRASHED->value
-        ]))
-            return AssignmentImage::query()->withTrashed();
+        /** @var \Illumintate/Suppoert/Collection<int, Media> */
+        $assignmentMedia = $assignment->getMedia(Assignment::IMAGE);
 
-        return AssignmentImage::query();
+        (bool) $isMediaExists = $assignmentMedia->contains('uuid', $uuid);
+
+        if (!$isMediaExists)
+            throw MediaModelException::uuidNotFound();
+
+        /** @var Media */
+        $media = Media::findByUuid($uuid);
+
+        $isSuccess = $media->delete();
+
+        if ($isSuccess)
+            return $this->success([], Response::HTTP_OK, 'TODO');
+
+        return $this->error([], Response::HTTP_BAD_REQUEST, 'TODO');
     }
+
+    // public function destroy(AssignmentImage $assignmentImage)
+    // {
+    //     return $assignmentImage->clearMediaCollection(AssignmentImage::ASSIGNMENT);
+    // }
+
 }

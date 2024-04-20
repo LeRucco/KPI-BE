@@ -43,9 +43,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post(AssignmentController::route . '/{assignment}/restore', [AssignmentController::class, 'restore']);
 
     /** Assignment Image */
-    Route::apiResource(AssignmentImageController::route, AssignmentImageController::class);
-    Route::get(AssignmentImageController::route . '/{user}/user', [AssignmentImageController::class, 'user']);
-    Route::post(AssignmentImageController::route . '/{assignment_image}/restore', [AssignmentImageController::class, 'restore']);
+    Route::get(AssignmentImageController::route . '/{assignment}', [AssignmentImageController::class, 'show']);
+    Route::post(AssignmentImageController::route, [AssignmentImageController::class, 'store']);
+    Route::delete(AssignmentImageController::route . '/{assignment}/{uuid}', [AssignmentImageController::class, 'destroy']);
 });
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

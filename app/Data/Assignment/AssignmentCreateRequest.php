@@ -3,7 +3,7 @@
 namespace App\Data\Assignment;
 
 use Carbon\Carbon;
-use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use App\Models\Work;
 use Spatie\LaravelData\Data;
 use App\Models\Custom\MyCarbon;
@@ -40,6 +40,10 @@ class AssignmentCreateRequest extends Data
 
         #[Max(200)]
         public string $locationAddress,
+
+        /** @var UploadedFile */
+        #[Max(1024 * 1024 * 10)]
+        public ?array $images,
 
     ) {
     }

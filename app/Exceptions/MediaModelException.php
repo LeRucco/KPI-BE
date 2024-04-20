@@ -7,20 +7,14 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\ValidationException;
 
-class ModelTrashedException extends Exception
+class MediaModelException extends Exception
 {
     use HttpResponses;
 
-    public static function alreadySoftDeleted(): ModelTrashedException
+    public static function uuidNotFound(): MediaModelException
     {
-        return new self('Already soft deleted', Response::HTTP_BAD_REQUEST);
-    }
-
-    public static function stillExist(): ModelTrashedException
-    {
-        return new self('Data still exists', Response::HTTP_BAD_REQUEST);
+        return new self('Uuid Media Model Not Found', Response::HTTP_BAD_REQUEST);
     }
 
     public function report(Request $request)

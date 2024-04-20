@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('assignment_image', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('assignment_id');
-            $table->string('image', 255);
+            $table->string('name', 255);
 
             $table->softDeletes();
             $table->timestamps();

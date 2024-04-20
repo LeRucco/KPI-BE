@@ -2,17 +2,12 @@
 
 namespace App\Data\AssignmentImage;
 
-use Carbon\Carbon;
-use App\Models\Work;
 use Spatie\LaravelData\Data;
-use App\Models\Custom\MyCarbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\MapName;
-use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\Validation\Max;
-use Spatie\LaravelData\Attributes\Validation\Date;
-use Spatie\LaravelData\Attributes\Validation\Exists;
-use Spatie\LaravelData\Attributes\WithCastAndTransformer;
+use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 
 #[MapName(SnakeCaseMapper::class)]
 class AssignmentImageCreateRequest extends Data
@@ -21,8 +16,9 @@ class AssignmentImageCreateRequest extends Data
 
         public int $assignmentId,
 
-        #
-        public UploadedFile $image,
+        /** @var UploadedFile */
+        #[Max(1024 * 1024 * 10)]
+        public array $images,
 
     ) {
     }
