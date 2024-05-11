@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\User\UserCreateRequest;
+use App\Data\User\UserImageResponse;
 use App\Models\User;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
@@ -11,6 +12,7 @@ use App\Data\User\UserUpdateImageRequest;
 use App\Data\User\UserUpdateRequest;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\ApiBasicReadInterfaces;
+use Illuminate\Support\Facades\Gate;
 use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\PaginatedDataCollection;
 
@@ -20,6 +22,8 @@ class UserController extends Controller implements ApiBasicReadInterfaces
 
     public function index()
     {
+        Gate::authorize('viewAny', [User::class]);
+
         (array) $data = UserResponse::collect(
             User::paginate(),
             PaginatedDataCollection::class
@@ -30,7 +34,7 @@ class UserController extends Controller implements ApiBasicReadInterfaces
 
     public function show(User $user)
     {
-        // return $user;
+        Gate::authorize('view', [User::class, $user]);
         (array) $data = UserResponse::from(
             $user
         )->toArray();
@@ -40,6 +44,8 @@ class UserController extends Controller implements ApiBasicReadInterfaces
 
     public function store(UserCreateRequest $req)
     {
+        Gate::authorize('create', [User::class]);
+
         /** @var App\Models\User */
         $user = User::create($req->toArray());
 
@@ -52,6 +58,7 @@ class UserController extends Controller implements ApiBasicReadInterfaces
 
     public function update(UserUpdateRequest $req, User $user)
     {
+        Gate::authorize('update', [User::class, $user]);
         (bool) $isSuccess = $user->update($req->toArray());
 
         (array) $data = UserResponse::from(
@@ -64,10 +71,9 @@ class UserController extends Controller implements ApiBasicReadInterfaces
         return $this->error($data, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
-    public function updateImage(UserUpdateImageRequest $req)
+    public function updateImage(UserUpdateImageRequest $req, User $user)
     {
-        /** @var \App\Models\User */
-        $user = User::findOrFail($req->userId)->first();
+        Gate::authorize('updateImage', [User::class, $user]);
 
         if ($req->image !== null) {
             $user
@@ -75,10 +81,21 @@ class UserController extends Controller implements ApiBasicReadInterfaces
                 ->usingName($user->id . '-' . $user->nrp)
                 ->toMediaCollection(User::IMAGE);
         }
+
+        (array) $data = UserImageResponse::from(
+            $user->getMedia(User::IMAGE)->first()
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
+
+    // TODO Soft Deleted and Restore not yet testing and implemented.
     public function destroy(User $user)
     {
+
+        Gate::authorize('delete', [User::class, $user]);
+
         // Using Soft Delete
         $isSuccess = $user->delete();
         if ($isSuccess)

@@ -19,6 +19,8 @@ class UserResponse extends Resource
     public function __construct(
         public string $id,
 
+        public ?UserImageResponse $image,
+
         public ?string $position,
 
         public string $fullName,
@@ -66,9 +68,13 @@ class UserResponse extends Resource
 
     public static function fromModel(User $user): UserResponse
     {
+        $imageData = UserImageResponse::from(
+            $user->getMedia(User::IMAGE)->first()
+        );
 
         return new UserResponse(
             $user->id,
+            $imageData,
             $user->position,
             $user->full_name,
             $user->nik,

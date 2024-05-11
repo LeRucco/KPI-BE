@@ -13,8 +13,6 @@ class UserUpdateImageRequest extends Data
 {
     public function __construct(
 
-        public int $userId,
-
         #[Max(1024 * 1024 * 10)]
         public UploadedFile $image,
 
