@@ -38,6 +38,14 @@ return [
             'throw' => false,
         ],
 
+        'user_image' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/user'),
+            'url' => env('APP_URL') . '/user',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),

@@ -31,21 +31,33 @@ class UserSeeder extends Seeder
         ])->assignRole(RoleEnum::DEVELOPER);
 
         User::create([
-            'nrp' => 'asep',
-            'full_name' => 'asep',
-            'password' => Hash::make('asep')
-        ])->assignRole(RoleEnum::EMPLOYEE);
+            'nrp' => '50110041',
+            'full_name' => 'Kusdi',
+            'password' => Hash::make('50110041')
+        ])->assignRole(RoleEnum::ADMIN);
 
         User::create([
-            'nrp' => 'budi',
-            'full_name' => 'budi',
-            'password' => Hash::make('budi')
+            'nrp' => '1010003',
+            'full_name' => 'Nur Wahyudi',
+            'password' => Hash::make('1010003')
         ])->assignRole(RoleEnum::EMPLOYEE);
 
-        User::create([
-            'nrp' => 'coco',
-            'full_name' => 'coco',
-            'password' => Hash::make('coco')
-        ]);
+        // User::create([
+        //     'nrp' => 'asep',
+        //     'full_name' => 'asep',
+        //     'password' => Hash::make('asep')
+        // ])->assignRole(RoleEnum::EMPLOYEE);
+
+        // User::create([
+        //     'nrp' => 'budi',
+        //     'full_name' => 'budi',
+        //     'password' => Hash::make('budi')
+        // ])->assignRole(RoleEnum::EMPLOYEE);
+
+        // User::create([
+        //     'nrp' => 'coco',
+        //     'full_name' => 'coco',
+        //     'password' => Hash::make('coco')
+        // ]);
     }
 }

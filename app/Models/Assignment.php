@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Work;
+
 use App\Enums\PermissionEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
@@ -39,11 +40,6 @@ class Assignment extends Model implements HasMedia
     public function work(): BelongsTo
     {
         return $this->belongsTo(Work::class, 'work_id', 'id');
-    }
-
-    public function images(): HasMany
-    {
-        return $this->hasMany(AssignmentImage::class, 'assignment_id', 'id');
     }
 
     public function resolveRouteBinding($id, $field = null): \Illuminate\Database\Eloquent\Model|null

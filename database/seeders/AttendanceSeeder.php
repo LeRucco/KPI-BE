@@ -13,10 +13,10 @@ class AttendanceSeeder extends Seeder
     public function run(): void
     {
         /** @var \App\Models\User */
-        $asep = User::where('full_name', '=', 'asep')->first();
+        $kusdi = User::where('nrp', '=', '50110041')->first();
 
         /** @var \App\Models\User */
-        $budi = User::where('full_name', '=', 'budi')->first();
+        $nur = User::where('nrp', '=', '1010003')->first();
 
         for ($i = 1; $i <= 31; $i++) {
             if (
@@ -28,7 +28,7 @@ class AttendanceSeeder extends Seeder
                 continue;
             // asep Karyawan
             Attendance::create([
-                'user_id' => $asep->id,
+                'user_id' => $kusdi->id,
                 'clock_in' => Carbon::createFromTime($hour = 8, $minute = 0, $second = $i - 1),
                 // 'clock_out' => fake()->time('H:i:s', '17:0:0'),
                 'description' => fake()->text(),
@@ -38,7 +38,7 @@ class AttendanceSeeder extends Seeder
                 'location_address' => fake()->streetAddress()
             ]);
             Attendance::create([
-                'user_id' => $asep->id,
+                'user_id' => $kusdi->id,
                 // 'clock_in' => fake()->time('H:i:s', '8:0:0'),
                 'clock_in' => Carbon::createFromTime($hour = 17, $minute = 0, $second = $i - 1),
                 'description' => fake()->text(),
@@ -50,7 +50,7 @@ class AttendanceSeeder extends Seeder
 
             // budi Karyawan
             Attendance::create([
-                'user_id' => $budi->id,
+                'user_id' => $nur->id,
                 'clock_in' => Carbon::createFromTime($hour = 8, $minute = 0, $second = $i - 1),
                 // 'clock_out' => fake()->time('H:i:s', '17:0:0'),
                 'description' => fake()->text(),
@@ -60,7 +60,7 @@ class AttendanceSeeder extends Seeder
                 'location_address' => fake()->streetAddress()
             ]);
             Attendance::create([
-                'user_id' => $budi->id,
+                'user_id' => $nur->id,
                 // 'clock_in' => fake()->time('H:i:s', '8:0:0'),
                 'clock_in' => Carbon::createFromTime($hour = 17, $minute = 0, $second = $i - 1),
                 'description' => fake()->text(),

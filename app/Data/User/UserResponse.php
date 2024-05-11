@@ -2,13 +2,15 @@
 
 namespace App\Data\User;
 
-use Spatie\LaravelData\Resource;
-use Spatie\LaravelData\Attributes\MapName;
-use App\Models\Custom\MyCarbonImmutable;
+use Carbon\Carbon;
 use App\Models\User;
 use Carbon\CarbonImmutable;
-use Spatie\LaravelData\Attributes\WithCastAndTransformer;
+use App\Models\Custom\MyCarbon;
+use Spatie\LaravelData\Resource;
+use App\Models\Custom\MyCarbonImmutable;
+use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
+use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 #[MapName(SnakeCaseMapper::class)]
 class UserResponse extends Resource
@@ -17,21 +19,39 @@ class UserResponse extends Resource
     public function __construct(
         public string $id,
 
-        public string $nrp,
+        public ?string $position,
 
-        public ?string $fullName,
+        public string $fullName,
 
-        public ?string $address,
+        public ?string $nik,
 
-        public ?string $phoneNumber,
+        public ?string $bpjsKetenagakerjaan,
 
-        public ?string $image,
+        public ?string $bpjsKesehatan,
+
+        public ?int $payrate,
 
         public ?string $npwp,
 
-        public ?string $bpjs,
+        #[WithCastAndTransformer(MyCarbon::class)]
+        public ?Carbon $doh,
 
-        public ?string $nik,
+        public ?string $birthPlace,
+
+        #[WithCastAndTransformer(MyCarbon::class)]
+        public ?Carbon $birthDate,
+
+        public ?string $religion,
+
+        public ?string $phoneNumber,
+
+        public ?string $email,
+
+        public ?string $city,
+
+        public ?string $address,
+
+        public ?string $status,
 
         #[WithCastAndTransformer(MyCarbonImmutable::class)]
         public ?CarbonImmutable $deletedAt,
@@ -49,14 +69,22 @@ class UserResponse extends Resource
 
         return new UserResponse(
             $user->id,
-            $user->nrp,
+            $user->position,
             $user->full_name,
-            $user->address,
-            $user->phone_number,
-            $user->image,
-            $user->npwp,
-            $user->bpjs,
             $user->nik,
+            $user->bpjs_ketenagakerjaan,
+            $user->bpjs_kesehatan,
+            $user->payrate,
+            $user->npwp,
+            Carbon::make($user->doh),
+            $user->birth_place,
+            Carbon::make($user->birth_date),
+            $user->religion,
+            $user->phone_number,
+            $user->email,
+            $user->city,
+            $user->address,
+            $user->status,
             CarbonImmutable::make($user->deleted_at),
             CarbonImmutable::make($user->created_at),
             CarbonImmutable::make($user->updated_at),
