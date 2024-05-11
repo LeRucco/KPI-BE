@@ -23,7 +23,7 @@ class AssignmentImageController extends Controller
 
     public function show(Assignment $assignment)
     {
-        Gate::authorize('viewImages', [$assignment]);
+        Gate::authorize('viewImages', [Assignment::class, $assignment]);
 
         (array) $data = AssignmentImageResponse::collect(
             $assignment->getMedia(Assignment::IMAGE),
@@ -58,7 +58,7 @@ class AssignmentImageController extends Controller
 
     public function destroy(Assignment $assignment, string $uuid)
     {
-        Gate::authorize('deleteImage', [$assignment]);
+        Gate::authorize('deleteImage', [Assignment::class, $assignment]);
 
         /** @var \Illumintate/Suppoert/Collection<int, Media> */
         $assignmentMedia = $assignment->getMedia(Assignment::IMAGE);

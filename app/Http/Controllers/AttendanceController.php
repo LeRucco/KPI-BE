@@ -41,7 +41,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function show(Attendance $attendance)
     {
-        Gate::authorize('view', [$attendance]);
+        Gate::authorize('view', [Attendance::class, $attendance]);
 
         (array) $data = AttendanceResponse::from(
             $attendance
@@ -91,7 +91,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function update(AttendanceUpdateRequest $req, Attendance $attendance)
     {
-        Gate::authorize('update', [$attendance]);
+        Gate::authorize('update', [Attendance::class, $attendance]);
 
         $this->clockValidity($req->clockIn, $req->clockOut);
         $this->clockValidityUpdate($req->clockIn, $req->clockOut, $attendance);
@@ -118,7 +118,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function updateStatus(AttendanceUpdateStatusRequest $req, Attendance $attendance)
     {
-        Gate::authorize('updateStatus', [$attendance]);
+        Gate::authorize('updateStatus', [Attendance::class, $attendance]);
 
         (bool) $isSuccess = $attendance->update($req->toArray());
         (array) $data = AttendanceResponse::from(
@@ -135,7 +135,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function destroy(Attendance $attendance)
     {
-        Gate::authorize('delete', [$attendance]);
+        Gate::authorize('delete', [Attendance::class, $attendance]);
 
         if ($attendance->trashed())
             throw ModelTrashedException::alreadySoftDeleted();
@@ -154,7 +154,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function restore(Attendance $attendance)
     {
-        Gate::authorize('restore', [$attendance]);
+        Gate::authorize('restore', [Attendance::class, $attendance]);
 
         if (!$attendance->trashed())
             throw ModelTrashedException::stillExist();

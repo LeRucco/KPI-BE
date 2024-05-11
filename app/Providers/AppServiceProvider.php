@@ -2,17 +2,26 @@
 
 namespace App\Providers;
 
-use App\Enums\PermissionEnum;
 use App\Models\User;
+use App\Models\Work;
+use App\Models\Permit;
 use App\Enums\RoleEnum;
+use App\Models\WorkRatio;
+use App\Models\Assignment;
 use App\Models\Attendance;
+use App\Policies\UserPolicy;
+use App\Policies\WorkPolicy;
+use App\Enums\PermissionEnum;
+use App\Policies\PermitPolicy;
+use App\Policies\WorkRatioPolicy;
+use App\Policies\AssignmentPolicy;
 use App\Policies\AttendancePolicy;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +46,11 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole(RoleEnum::SUPER_ADMIN->value, 'web') ? true : null;
         });
 
+        Gate::policy(Assignment::class, AssignmentPolicy::class);
         Gate::policy(Attendance::class, AttendancePolicy::class);
+        Gate::policy(Permit::class, PermitPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Work::class, WorkPolicy::class);
+        Gate::policy(WorkRatio::class, WorkRatioPolicy::class);
     }
 }

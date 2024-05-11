@@ -37,7 +37,7 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
 
     public function show(Work $work)
     {
-        Gate::authorize('view', [$work]);
+        Gate::authorize('view', [Work::class, $work]);
 
         (array) $data = WorkResponse::from(
             $work
@@ -62,6 +62,8 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
 
     public function update(WorkUpdateRequest $req, Work $work)
     {
+        Gate::authorize('update', [Work::class, $work]);
+
         (bool) $isSuccess = $work->update($req->toArray());
         (array) $data = WorkResponse::from(
             $work
@@ -75,7 +77,7 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
 
     public function destroy(Work $work)
     {
-        Gate::authorize('delete', [$work]);
+        Gate::authorize('delete', [Work::class, $work]);
 
         if ($work->trashed())
             throw ModelTrashedException::alreadySoftDeleted();
@@ -94,7 +96,7 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
 
     public function restore(Work $work)
     {
-        Gate::authorize('restore', [$work]);
+        Gate::authorize('restore', [Work::class, $work]);
 
         if (!$work->trashed())
             throw ModelTrashedException::stillExist();

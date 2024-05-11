@@ -36,7 +36,7 @@ class WorkRatioController extends Controller implements ApiBasicReadInterfaces
 
     public function show(WorkRatio $workRatio)
     {
-        Gate::authorize('view', [$workRatio]);
+        Gate::authorize('view', [WorkRatio::class, $workRatio]);
 
         (array) $data = WorkRatioResponse::from(
             $workRatio
@@ -64,7 +64,7 @@ class WorkRatioController extends Controller implements ApiBasicReadInterfaces
 
     public function update(WorkRatioUpdateRequest $req, WorkRatio $workRatio)
     {
-        Gate::authorize('update', [$workRatio]);
+        Gate::authorize('update', [WorkRatio::class, $workRatio]);
 
         $isSuccess = $workRatio->update($req->toArray());
         $data = WorkRatioResponse::from(
@@ -81,7 +81,7 @@ class WorkRatioController extends Controller implements ApiBasicReadInterfaces
 
     public function destroy(WorkRatio $workRatio)
     {
-        Gate::authorize('delete', [$workRatio]);
+        Gate::authorize('delete', [WorkRatio::class, $workRatio]);
 
         if ($workRatio->trashed())
             throw ModelTrashedException::alreadySoftDeleted();
@@ -101,7 +101,7 @@ class WorkRatioController extends Controller implements ApiBasicReadInterfaces
 
     public function restore(WorkRatio $workRatio)
     {
-        Gate::authorize('restore', [$workRatio]);
+        Gate::authorize('restore', [WorkRatio::class, $workRatio]);
 
         if (!$workRatio->trashed())
             throw ModelTrashedException::stillExist();

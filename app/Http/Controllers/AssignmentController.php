@@ -37,7 +37,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
 
     function show(Assignment $assignment)
     {
-        Gate::authorize('view', [$assignment]);
+        Gate::authorize('view', [Assignment::class, $assignment]);
 
         (array) $data = AssignmentResponse::from(
             $assignment
@@ -103,7 +103,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
 
     function update(AssignmentUpdateRequest $req, Assignment $assignment)
     {
-        Gate::authorize('update', [$assignment]);
+        Gate::authorize('update', [Assignment::class, $assignment]);
 
         /** @var \App\Models\User */
         $userAuth = Auth::user();
@@ -126,7 +126,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
 
     public function destroy(Assignment $assignment)
     {
-        Gate::authorize('delete', [$assignment]);
+        Gate::authorize('delete', [Assignment::class, $assignment]);
 
         if ($assignment->trashed())
             throw ModelTrashedException::alreadySoftDeleted();
@@ -146,7 +146,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
 
     public function restore(Assignment $assignment)
     {
-        Gate::authorize('restore', [$assignment]);
+        Gate::authorize('restore', [Assignment::class, $assignment]);
 
         if (!$assignment->trashed())
             throw ModelTrashedException::stillExist();

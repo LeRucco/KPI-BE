@@ -31,7 +31,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     /** User Profile */
     Route::apiResource(UserController::route, UserController::class);
-    Route::post(UserController::route . '/image', [UserController::class, 'updateImage']);
+    Route::post(UserController::route . '/{user}/image', [UserController::class, 'updateImage']);
 
     /** Attendance */
     Route::apiResource(AttendanceController::route, AttendanceController::class);
