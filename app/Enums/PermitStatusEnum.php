@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum AttendanceStatusEnum: int
+enum PermitStatusEnum: int
 {
     case WAITING = 1;
     case APPROVE = 2;

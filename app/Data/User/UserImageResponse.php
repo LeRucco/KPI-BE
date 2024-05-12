@@ -3,6 +3,7 @@
 namespace App\Data\User;
 
 use Spatie\LaravelData\Resource;
+use Illuminate\Support\Collection;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -41,14 +42,27 @@ class UserImageResponse extends Resource
     //     );
     // }
 
-    public static function fromMedia(Media $media): UserImageResponse
+    public static function fromCollection(Collection $media): UserImageResponse | null
     {
+        if ($media->count() === 0) return null;
 
         return new UserImageResponse(
-            $media->id,
-            $media->uuid,
-            $media->name,
-            $media->getFullUrl()
+            $media->first()->id,
+            $media->first()->uuid,
+            $media->first()->name,
+            $media->first()->getFullUrl()
         );
     }
+
+    // public static function fromMedia(Media $media): UserImageResponse | null
+    // {
+    //     if ($media === null) return null;
+
+    //     return new UserImageResponse(
+    //         $media->id,
+    //         $media->uuid,
+    //         $media->name,
+    //         $media->getFullUrl()
+    //     );
+    // }
 }

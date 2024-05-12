@@ -2,29 +2,23 @@
 
 namespace App\Models;
 
-use App\Models\User;
 use App\Enums\PermissionEnum;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Attendance extends Model
+class Permit extends Model
 {
     use SoftDeletes;
 
-    protected $table = 'attendances';
+    protected $table = 'permits';
 
     protected $fillable = [
         'user_id',
-        'date',
-        'clock_in',
-        'clock_out',
-        'description',
+        'type',
         'status',
-        'latitude',
-        'longitude',
-        'location_address'
+        'date',
     ];
 
     public function user(): BelongsTo
@@ -39,7 +33,7 @@ class Attendance extends Model
 
         if ($user->canAny([
             PermissionEnum::KPI_READTRASHED->value,
-            PermissionEnum::ATTENDANCE_READTRASHED->value,
+            PermissionEnum::PERMIT_READTRASHED->value,
         ]))
             return $this::withTrashed()->find($id);
 

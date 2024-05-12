@@ -25,7 +25,9 @@ class UserController extends Controller implements ApiBasicReadInterfaces
         Gate::authorize('viewAny', [User::class]);
 
         (array) $data = UserResponse::collect(
-            User::paginate(),
+            $this->readTrashedOrNot()
+                ->orderBy('id', 'asc')
+                ->paginate(),
             PaginatedDataCollection::class
         )->toArray();
 

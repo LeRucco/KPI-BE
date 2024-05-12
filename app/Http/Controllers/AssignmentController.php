@@ -154,7 +154,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
         (bool) $isSuccess = $assignment->restore();
 
         if ($isSuccess) {
-            $data = AssignmentResponse::from(
+            (array) $data = AssignmentResponse::from(
                 $assignment
             )
                 ->toArray();

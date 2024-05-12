@@ -2,14 +2,14 @@
 
 namespace App\Policies;
 
+use App\Models\Permit;
 use App\Models\User;
 use App\Enums\RoleEnum;
 use App\Enums\PermissionEnum;
-use App\Models\Assignment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class AssignmentPolicy
+class PermitPolicy
 {
     use HandlesAuthorization;
 
@@ -42,21 +42,10 @@ class AssignmentPolicy
         return false;
     }
 
-    public function viewAnyImages(User $user): bool
-    {
-        if ($user->canAny([
-            PermissionEnum::KPI_READ->value,
-            PermissionEnum::KPI_READTRASHED->value
-        ]))
-            return true;
-
-        return false;
-    }
-
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Assignment $assignment): bool
+    public function view(User $user, Permit $permit): bool
     {
         if ($user->canAny([
             PermissionEnum::KPI_READ->value,
@@ -66,33 +55,10 @@ class AssignmentPolicy
 
         if (
             $user->canAny([
-                PermissionEnum::ASSIGNMENT_READ->value,
-                PermissionEnum::ASSIGNMENT_READTRASHED->value,
+                PermissionEnum::PERMIT_READ->value,
+                PermissionEnum::PERMIT_READTRASHED->value,
             ])
-            && $user->id === $assignment->user_id
-        )
-            return true;
-
-        return false;
-    }
-
-    /**
-     * Determine whether the user can view the assignment images model
-     */
-    public function viewImages(User $user, Assignment $assignment): bool
-    {
-        if ($user->canAny([
-            PermissionEnum::KPI_READ->value,
-            PermissionEnum::KPI_READTRASHED->value
-        ]))
-            return true;
-
-        if (
-            $user->canAny([
-                PermissionEnum::ASSIGNMENTIMAGE_READ->value,
-                PermissionEnum::ASSIGNMENTIMAGE_READTRASHED->value,
-            ])
-            && $user->id === $assignment->user_id
+            && $user->id === $permit->user_id
         )
             return true;
 
@@ -113,8 +79,8 @@ class AssignmentPolicy
 
         if (
             $user->canAny([
-                PermissionEnum::ASSIGNMENT_READ->value,
-                PermissionEnum::ASSIGNMENT_READTRASHED->value
+                PermissionEnum::PERMIT_READ->value,
+                PermissionEnum::PERMIT_READTRASHED->value
             ])
             && $user->id === $userModelBinding->id
         )
@@ -131,21 +97,7 @@ class AssignmentPolicy
         if ($user->can(PermissionEnum::KPI_CREATE->value))
             return true;
 
-        if ($user->can(PermissionEnum::ASSIGNMENT_CREATE->value))
-            return true;
-
-        return false;
-    }
-
-    /**
-     * Determine whether the user can create assignment image models.
-     */
-    public function createImages(User $user): bool
-    {
-        if ($user->can(PermissionEnum::KPI_CREATE->value))
-            return true;
-
-        if ($user->can(PermissionEnum::ASSIGNMENTIMAGE_CREATE->value))
+        if ($user->can(PermissionEnum::PERMIT_CREATE->value))
             return true;
 
         return false;
@@ -154,14 +106,14 @@ class AssignmentPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Assignment $assignment): bool
+    public function update(User $user, Permit $permit): bool
     {
         if ($user->can(PermissionEnum::KPI_UPDATE->value))
             return true;
 
         if (
-            $user->can(PermissionEnum::ASSIGNMENT_UPDATE->value)
-            && $user->id === $assignment->user_id
+            $user->can(PermissionEnum::PERMIT_UPDATE->value)
+            && $user->id === $permit->user_id
         )
             return true;
 
@@ -171,31 +123,14 @@ class AssignmentPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Assignment $assignment): bool
+    public function delete(User $user, Permit $permit): bool
     {
         if ($user->can(PermissionEnum::KPI_DELETE->value))
             return true;
 
         if (
-            $user->can(PermissionEnum::ASSIGNMENT_DELETE->value)
-            && $user->id === $assignment->user_id
-        )
-            return true;
-
-        return false;
-    }
-
-    /**
-     * Determine whether the user can delete assignment image model.
-     */
-    public function deleteImage(User $user, Assignment $assignment): bool
-    {
-        if ($user->can(PermissionEnum::KPI_DELETE->value))
-            return true;
-
-        if (
-            $user->can(PermissionEnum::ASSIGNMENTIMAGE_DELETE->value)
-            && $user->id === $assignment->user_id
+            $user->can(PermissionEnum::PERMIT_DELETE->value)
+            && $user->id === $permit->user_id
         )
             return true;
 
@@ -205,14 +140,14 @@ class AssignmentPolicy
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Assignment $assignment): bool
+    public function restore(User $user, Permit $permit): bool
     {
         if ($user->can(PermissionEnum::KPI_RESTORE->value))
             return true;
 
         if (
-            $user->can(PermissionEnum::ASSIGNMENT_RESTORE->value)
-            && $user->id === $assignment->user_id
+            $user->can(PermissionEnum::PERMIT_RESTORE->value)
+            && $user->id === $permit->user_id
         )
             return true;
 

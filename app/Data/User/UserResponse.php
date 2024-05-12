@@ -68,8 +68,8 @@ class UserResponse extends Resource
 
     public static function fromModel(User $user): UserResponse
     {
-        $imageData = UserImageResponse::from(
-            $user->getMedia(User::IMAGE)->first()
+        $imageData = UserImageResponse::fromCollection(
+            $user->getMedia(User::IMAGE)
         );
 
         return new UserResponse(

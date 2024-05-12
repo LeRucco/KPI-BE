@@ -38,6 +38,8 @@ class AttendanceResponse extends Resource
         #[Enum(AttendanceStatusEnum::class)]
         public AttendanceStatusEnum $status,
 
+        public string $statusName,
+
         public string $latitude,
 
         public string $longitude,
@@ -68,6 +70,7 @@ class AttendanceResponse extends Resource
             Carbon::make($attendance->clock_out),
             $attendance->description,
             $status,
+            $status->name,
             $attendance->latitude,
             $attendance->longitude,
             $attendance->location_address,

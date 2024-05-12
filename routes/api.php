@@ -5,6 +5,7 @@ use App\Http\Controllers\AssignmentImageController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DevController;
+use App\Http\Controllers\PermitController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\WorkRatioController;
 use App\Http\Controllers\RolePermissionController;
@@ -59,6 +60,11 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     /** Role and Permission */
     Route::get(RolePermissionController::route . '/{user}/user', [RolePermissionController::class, 'user']);
+
+    /** Permit */
+    Route::apiResource(PermitController::route, PermitController::class);
+    Route::get(PermitController::route . '/{user}/user', [PermitController::class, 'user']);
+    Route::post(PermitController::route . '/{permit}/restore', [PermitController::class, 'restore']);
 });
 
 // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
