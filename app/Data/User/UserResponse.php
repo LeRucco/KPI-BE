@@ -19,6 +19,8 @@ class UserResponse extends Resource
     public function __construct(
         public string $id,
 
+        public string $nrp,
+
         public ?UserImageResponse $image,
 
         public ?string $position,
@@ -74,6 +76,7 @@ class UserResponse extends Resource
 
         return new UserResponse(
             $user->id,
+            $user->nrp,
             $imageData,
             $user->position,
             $user->full_name,

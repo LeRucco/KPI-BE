@@ -16,8 +16,12 @@ use App\Exceptions\MyValidationException;
 use App\Data\Attendance\AttendanceResponse;
 use Spatie\LaravelData\PaginatedDataCollection;
 use App\Data\Attendance\AttendanceCreateRequest;
+use App\Data\Attendance\AttendanceTotalRequest;
 use App\Data\Attendance\AttendanceUpdateRequest;
 use App\Data\Attendance\AttendanceUpdateStatusRequest;
+use App\Enums\RoleEnum;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceController extends Controller implements ApiBasicReadInterfaces
 {
@@ -29,7 +33,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
         (array) $data = AttendanceResponse::collect(
             $this->readTrashedOrNot()
-                ->orderBy('id', 'asc')
+                ->orderBy('id', 'desc')
                 ->paginate(),
             PaginatedDataCollection::class
         )
@@ -37,6 +41,87 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
             ->toArray();
 
         return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function total(AttendanceTotalRequest $req)
+    {
+        $date = $req->date->format('Y-m-d');
+
+        $clockInDown = "$date 06:00:00";
+        $clockInUp = "$date 08:00:00";
+        $clockOutDown = "$date 17:00:00";
+        $clockOutUp = "$date 23:59:59";
+
+        $totalAttend = DB::scalar("
+        select
+            count(user_id)
+        from (
+            select
+                user_id , COUNT(*)
+            from attendances a
+            where
+                status != 3
+                and
+                (
+                    clock_in between :clock_in_down and :clock_in_up
+                    or
+                    clock_out between :clock_out_down and :clock_out_up
+                )
+            group by (user_id)
+            having count(*) >= 2
+        ) as rowitems;
+        ", [
+            'clock_in_down' => $clockInDown,
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown,
+            'clock_out_up' => $clockOutUp
+        ]);
+
+        $totalLate = DB::scalar("
+        select
+            COUNT(user_id)
+        from attendances a
+        where
+            status != 3
+            and
+            clock_in > :clock_in_up
+            and
+            clock_in < :clock_out_down
+        ", [
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown
+        ]);
+
+        $totalEarlyLeave = DB::scalar("
+        select
+            COUNT(user_id)
+        from attendances a
+        where
+            status != 3
+            and
+            clock_out > :clock_in_up
+            and
+            clock_out < :clock_out_down
+        ", [
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown
+        ]);
+
+        /** @var Collection */
+        $users = User::withoutRole([
+            RoleEnum::SUPER_ADMIN->value,
+            RoleEnum::ADMIN->value,
+            RoleEnum::DEVELOPER->value
+        ])->get();
+        return $users;
+
+        $totalAlpha = $users->count() - $totalAttend;
+
+        return [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
+
+        // Attendance::all()->where('clock_in', '=', $date)
+
+        return '';
     }
 
     public function show(Attendance $attendance)
@@ -84,7 +169,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
         (array) $data = AttendanceResponse::from(
             $attendance
-        )->include('user')->toArray();
+        )->include('')->toArray();
 
         return $this->success($data, Response::HTTP_CREATED, 'TODO');
     }

@@ -24,17 +24,23 @@ class UserSeeder extends Seeder
             'password' => Hash::make('admin')
         ])->assignRole(RoleEnum::ADMIN);
 
-        User::create([
-            'nrp' => 'developer',
-            'full_name' => 'developer',
-            'password' => Hash::make('developer')
-        ])->assignRole(RoleEnum::DEVELOPER);
+        // User::create([
+        //     'nrp' => 'developer',
+        //     'full_name' => 'developer',
+        //     'password' => Hash::make('developer')
+        // ])->assignRole(RoleEnum::DEVELOPER);
 
         User::create([
             'nrp' => '50110041',
             'full_name' => 'Kusdi',
             'password' => Hash::make('50110041')
         ])->assignRole(RoleEnum::ADMIN);
+
+        User::create([
+            'nrp' => '1010004',
+            'full_name' => 'Ardi Ananta Dwi Prastyo',
+            'password' => Hash::make('1010004')
+        ])->assignRole(RoleEnum::EMPLOYEE);
 
         User::create([
             'nrp' => '1010003',

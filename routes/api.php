@@ -39,6 +39,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(AttendanceController::route . '/{user}/user', [AttendanceController::class, 'user']);
     Route::post(AttendanceController::route . '/{attendance}/restore', [AttendanceController::class, 'restore']);
     Route::put(AttendanceController::route . '/{attendance}/update-status', [AttendanceController::class, 'updateStatus']);
+    Route::get(AttendanceController::route . '/aa/aa', [AttendanceController::class, 'total']); // TODO endpoint nya mau apa ??
 
     /** Work */
     Route::apiResource(WorkController::route, WorkController::class);
