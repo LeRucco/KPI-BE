@@ -16,9 +16,10 @@ use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use App\Data\AssignmentImage\AssignmentImageResponse;
-use Illuminate\Support\Collection;
+use App\Models\User;
+use App\Models\Work;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use stdClass;
 
 #[MapName(SnakeCaseMapper::class)]
 class AssignmentResponse extends Resource
@@ -70,6 +71,37 @@ class AssignmentResponse extends Resource
         /** @var DataCollection */
         $imagesData = AssignmentImageResponse::collect(
             $assignment->getMedia(Assignment::IMAGE),
+            DataCollection::class
+        );
+
+        return new AssignmentResponse(
+            $assignment->id,
+            $assignment->user_id,
+            $userData,
+            $assignment->work_id,
+            $workData,
+            $imagesData,
+            Carbon::make($assignment->date),
+            $assignment->description,
+            $assignment->latitude,
+            $assignment->longitude,
+            $assignment->location_address,
+            CarbonImmutable::make($assignment->deleted_at),
+            CarbonImmutable::make($assignment->created_at),
+            CarbonImmutable::make($assignment->updated_at),
+        );
+    }
+
+    public static function fromStdClass(stdClass $assignment): AssignmentResponse
+    {
+
+        $userData = Lazy::create(fn () => UserResponse::from(User::find($assignment->user_id)));
+
+        $workData = Lazy::create(fn () => WorkResponse::from(Work::find($assignment->work_id)));
+
+        /** @var DataCollection */
+        $imagesData = AssignmentImageResponse::collect(
+            Assignment::find($assignment->id)->getMedia(Assignment::IMAGE),
             DataCollection::class
         );
 

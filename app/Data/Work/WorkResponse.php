@@ -21,6 +21,8 @@ class WorkResponse extends Resource
 
         public Lazy | WorkRatioResponse $workRatio,
 
+        public int $percentage,
+
         public string $name,
 
         public string $description,
@@ -43,6 +45,7 @@ class WorkResponse extends Resource
         return new WorkResponse(
             $work->id,
             $workRatioData,
+            $workRatioData->percentage,
             $work->name,
             $work->description,
             CarbonImmutable::make($work->deleted_at),

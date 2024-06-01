@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Assignment\AssignmentCheckRequest;
 use App\Data\Assignment\AssignmentCreateRequest;
 use App\Data\Assignment\AssignmentResponse;
 use App\Data\Assignment\AssignmentUpdateRequest;
@@ -12,7 +13,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Interfaces\ApiBasicReadInterfaces;
 use App\Models\Assignment;
 use App\Models\User;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\PaginatedDataCollection;
 
 class AssignmentController extends Controller implements ApiBasicReadInterfaces
@@ -33,6 +37,29 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
             ->toArray();
 
         return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function check(AssignmentCheckRequest $req)
+    {
+        Gate::authorize('viewAny', [Assignment::class]);
+
+        $date = $req->date->format('Y-m-d');
+        $userId = $req->userId;
+
+        $result = DB::table('assignments')
+            ->whereDate('assignments.date', '=', $date)
+            ->when($userId, function (Builder $query, string $userId) {
+                $query->where('assignments.user_id', '=', $userId);
+            })
+            ->select(['assignments.*'])
+            ->get();
+
+        (array) $data = AssignmentResponse::collect(
+            $result->toArray(),
+            DataCollection::class
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
     function show(Assignment $assignment)

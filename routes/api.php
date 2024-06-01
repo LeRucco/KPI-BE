@@ -33,13 +33,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     /** User Profile */
     Route::apiResource(UserController::route, UserController::class);
     Route::post(UserController::route . '/{user}/image', [UserController::class, 'updateImage']);
+    Route::get(UserController::route . '/attendance/dropdown', [UserController::class, 'attendanceDropdown']);
 
     /** Attendance */
     Route::apiResource(AttendanceController::route, AttendanceController::class);
     Route::get(AttendanceController::route . '/{user}/user', [AttendanceController::class, 'user']);
     Route::post(AttendanceController::route . '/{attendance}/restore', [AttendanceController::class, 'restore']);
     Route::put(AttendanceController::route . '/{attendance}/update-status', [AttendanceController::class, 'updateStatus']);
-    Route::get(AttendanceController::route . '/aa/aa', [AttendanceController::class, 'total']); // TODO endpoint nya mau apa ??
+    Route::get(AttendanceController::route . '/admin/total', [AttendanceController::class, 'total']);
+    Route::get(AttendanceController::route . '/admin/check', [AttendanceController::class, 'check']);
 
     /** Work */
     Route::apiResource(WorkController::route, WorkController::class);
@@ -53,6 +55,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource(AssignmentController::route, AssignmentController::class);
     Route::get(AssignmentController::route . '/{user}/user', [AssignmentController::class, 'user']);
     Route::post(AssignmentController::route . '/{assignment}/restore', [AssignmentController::class, 'restore']);
+    Route::get(AssignmentController::route . '/admin/check', [AssignmentController::class, 'check']);
 
     /** Assignment Image */
     Route::get(AssignmentImageController::route . '/{assignment}', [AssignmentImageController::class, 'show']);

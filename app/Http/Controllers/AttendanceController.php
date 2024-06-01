@@ -4,24 +4,28 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Enums\RoleEnum;
 use App\Models\Attendance;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
-use App\Interfaces\ApiBasicReadInterfaces;
-use App\Enums\AttendanceStatusEnum;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use App\Exceptions\ModelTrashedException;
-use App\Exceptions\MyValidationException;
-use App\Data\Attendance\AttendanceResponse;
-use Spatie\LaravelData\PaginatedDataCollection;
-use App\Data\Attendance\AttendanceCreateRequest;
-use App\Data\Attendance\AttendanceTotalRequest;
-use App\Data\Attendance\AttendanceUpdateRequest;
-use App\Data\Attendance\AttendanceUpdateStatusRequest;
-use App\Enums\RoleEnum;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Enums\AttendanceStatusEnum;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Database\Query\Builder;
+use Spatie\LaravelData\DataCollection;
+use App\Exceptions\ModelTrashedException;
+use App\Exceptions\MyValidationException;
+use App\Interfaces\ApiBasicReadInterfaces;
+use App\Data\Attendance\AttendanceResponse;
+use App\Data\Attendance\AttendanceCheckRequest;
+use App\Data\Attendance\AttendanceTotalRequest;
+use Spatie\LaravelData\PaginatedDataCollection;
+use App\Data\Attendance\AttendanceCreateRequest;
+use App\Data\Attendance\AttendanceUpdateRequest;
+use App\Data\Attendance\AttendanceUpdateStatusRequest;
 
 class AttendanceController extends Controller implements ApiBasicReadInterfaces
 {
@@ -41,6 +45,38 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
             ->toArray();
 
         return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function check(AttendanceCheckRequest $req)
+    {
+        // return $req;
+        Gate::authorize('viewAny', [Attendance::class]);
+
+        $date = $req->date->format('Y-m-d');
+        $status = $req->status == null ? null : $req->status->value;
+        $userId = $req->userId;
+
+        $result = DB::table('attendances')
+            ->join('users', 'attendances.user_id', '=', 'users.id')
+            ->where(function (Builder $query) use ($date) {
+                $query->whereDate('attendances.clock_in', '=', $date)
+                    ->orWhereDate('attendances.clock_out', '=', $date);
+            })
+            ->when($status, function (Builder $query, int $status) {
+                $query->where('attendances.status', '=', $status);
+            })
+            ->when($userId, function (Builder $query, string $userId) {
+                $query->where('attendances.user_id', '=', $userId);
+            })
+            ->select(['attendances.*', 'users.full_name'])
+            ->get();
+
+        (array) $data = AttendanceResponse::collect(
+            $result->toArray(),
+            DataCollection::class
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
     public function total(AttendanceTotalRequest $req)
@@ -113,15 +149,12 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
             RoleEnum::ADMIN->value,
             RoleEnum::DEVELOPER->value
         ])->get();
-        return $users;
 
         $totalAlpha = $users->count() - $totalAttend;
 
-        return [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
+        (array) $data = [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
 
-        // Attendance::all()->where('clock_in', '=', $date)
-
-        return '';
+        return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
     public function show(Attendance $attendance)

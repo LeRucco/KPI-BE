@@ -12,10 +12,13 @@ use Spatie\LaravelData\Resource;
 use App\Data\User\UserResponse;
 use App\Enums\AttendanceStatusEnum;
 use App\Models\Custom\MyCarbonImmutable;
+use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\Validation\Enum;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
+use stdClass;
 
 #[MapName(SnakeCaseMapper::class)]
 class AttendanceResponse extends Resource
@@ -24,6 +27,8 @@ class AttendanceResponse extends Resource
         public string $id,
 
         public string $userId,
+
+        public string $fullName,
 
         public Lazy | UserResponse $user,
 
@@ -59,12 +64,63 @@ class AttendanceResponse extends Resource
 
     public static function fromModel(Attendance $attendance): AttendanceResponse
     {
+        Log::debug('FROM MODEL LER');
         $userData = Lazy::create(fn () => UserResponse::from($attendance->user));
         $status = AttendanceStatusEnum::from($attendance->status);
+        $userFullName = $attendance->user->full_name;
 
         return new AttendanceResponse(
             $attendance->id,
             $attendance->user_id,
+            $userFullName,
+            $userData,
+            Carbon::make($attendance->clock_in),
+            Carbon::make($attendance->clock_out),
+            $attendance->description,
+            $status,
+            $status->name,
+            $attendance->latitude,
+            $attendance->longitude,
+            $attendance->location_address,
+            CarbonImmutable::make($attendance->deleted_at),
+            CarbonImmutable::make($attendance->created_at),
+            CarbonImmutable::make($attendance->updated_at),
+        );
+    }
+
+    public static function fromArray(array $attendance): AttendanceResponse
+    {
+        Log::info('FROM ARRAY LER');
+        $status = AttendanceStatusEnum::from($attendance['status']);
+        $userData = Lazy::create(fn () => UserResponse::from(User::find($attendance['user_id'])));
+        return new AttendanceResponse(
+            $attendance['id'],
+            $attendance['user_id'],
+            $$attendance['full_name'],
+            $userData,
+            Carbon::make($attendance['clock_in']),
+            Carbon::make($attendance['clock_out']),
+            $attendance['description'],
+            $status,
+            $status->name,
+            $attendance['latitude'],
+            $attendance['longitude'],
+            $attendance['location_address'],
+            CarbonImmutable::make($attendance['deleted_at']),
+            CarbonImmutable::make($attendance['created_at']),
+            CarbonImmutable::make($attendance['updated_at']),
+        );
+    }
+
+    public static function fromStdClass(stdClass $attendance): AttendanceResponse
+    {
+        Log::info('FROM ARRAY LER');
+        $status = AttendanceStatusEnum::from($attendance->status);
+        $userData = Lazy::create(fn () => UserResponse::from(User::find($attendance->user_id)));
+        return new AttendanceResponse(
+            $attendance->id,
+            $attendance->user_id,
+            $attendance->full_name,
             $userData,
             Carbon::make($attendance->clock_in),
             Carbon::make($attendance->clock_out),

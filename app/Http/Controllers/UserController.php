@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\User\UserCreateRequest;
+use App\Data\User\UserDropdownResponse;
 use App\Data\User\UserImageResponse;
 use App\Models\User;
 use App\Enums\PermissionEnum;
@@ -10,6 +11,7 @@ use Illuminate\Http\Response;
 use App\Data\User\UserResponse;
 use App\Data\User\UserUpdateImageRequest;
 use App\Data\User\UserUpdateRequest;
+use App\Enums\RoleEnum;
 use Illuminate\Support\Facades\Auth;
 use App\Interfaces\ApiBasicReadInterfaces;
 use Illuminate\Support\Facades\Gate;
@@ -39,6 +41,20 @@ class UserController extends Controller implements ApiBasicReadInterfaces
         Gate::authorize('view', [User::class, $user]);
         (array) $data = UserResponse::from(
             $user
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function attendanceDropdown()
+    {
+        Gate::authorize('viewAny', [User::class]);
+        (array) $data = UserDropdownResponse::collect(
+            $this->readTrashedOrNot()
+                ->withoutRole([RoleEnum::SUPER_ADMIN->value, RoleEnum::ADMIN->value, RoleEnum::DEVELOPER->value])
+                ->orderBy('id', 'asc')
+                ->get(['id', 'nrp', 'full_name']),
+            DataCollection::class,
         )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
