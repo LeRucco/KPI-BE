@@ -8,7 +8,7 @@ use Laravel\Sanctum\NewAccessToken;
 
 trait HttpResponses
 {
-    protected function success(array $data, int $code = 200, ?string $message = null): JsonResponse
+    protected function success(?array $data, int $code = 200, ?string $message = null): JsonResponse
     {
         // $data['status'] = 'Request was successfull';
         // $data['message'] = $message;

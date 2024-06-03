@@ -43,6 +43,35 @@ class AttendancePolicy
         return false;
     }
 
+    public function check(User $user): bool
+    {
+        return false;
+    }
+
+    public function total(User $user): bool
+    {
+        return false;
+    }
+
+    public function today(User $user): bool
+    {
+        if ($user->canAny([
+            PermissionEnum::KPI_READ->value,
+            PermissionEnum::KPI_READTRASHED->value
+        ]))
+            return true;
+
+        if (
+            $user->canAny([
+                PermissionEnum::ATTENDANCE_READ->value,
+                PermissionEnum::ATTENDANCE_READTRASHED->value,
+            ])
+        )
+            return true;
+
+        return false;
+    }
+
     /**
      * Determine whether the user can view the model.
      */

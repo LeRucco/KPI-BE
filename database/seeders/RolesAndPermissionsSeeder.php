@@ -63,6 +63,12 @@ class RolesAndPermissionsSeeder extends Seeder
             PermissionEnum::WORKRATIO_READ,
 
             PermissionEnum::PAYCHECKFILE_READ,
+
+            PermissionEnum::PERMIT_CREATE,
+            PermissionEnum::PERMIT_READ,
+            PermissionEnum::PERMIT_READTRASHED,
+            PermissionEnum::PERMIT_UPDATE,
+            // PermissionEnum::PERMIT_DELETE,
         ]);
     }
 }

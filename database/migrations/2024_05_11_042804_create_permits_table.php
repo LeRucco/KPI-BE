@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('type');
             $table->unsignedTinyInteger('status');
             $table->date('date');
-            $table->string('description', 200)->nullable();
+            $table->string('description', 200);
 
             $table->softDeletes();
             $table->timestamps();

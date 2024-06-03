@@ -90,7 +90,6 @@ class AttendanceResponse extends Resource
 
     public static function fromArray(array $attendance): AttendanceResponse
     {
-        Log::info('FROM ARRAY LER');
         $status = AttendanceStatusEnum::from($attendance['status']);
         $userData = Lazy::create(fn () => UserResponse::from(User::find($attendance['user_id'])));
         return new AttendanceResponse(
@@ -114,7 +113,6 @@ class AttendanceResponse extends Resource
 
     public static function fromStdClass(stdClass $attendance): AttendanceResponse
     {
-        Log::info('FROM ARRAY LER');
         $status = AttendanceStatusEnum::from($attendance->status);
         $userData = Lazy::create(fn () => UserResponse::from(User::find($attendance->user_id)));
         return new AttendanceResponse(

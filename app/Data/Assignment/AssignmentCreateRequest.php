@@ -3,7 +3,6 @@
 namespace App\Data\Assignment;
 
 use Carbon\Carbon;
-use Illuminate\Http\UploadedFile;
 use App\Models\Work;
 use Spatie\LaravelData\Data;
 use App\Models\Custom\MyCarbon;

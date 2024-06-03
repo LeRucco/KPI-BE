@@ -42,6 +42,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put(AttendanceController::route . '/{attendance}/update-status', [AttendanceController::class, 'updateStatus']);
     Route::get(AttendanceController::route . '/admin/total', [AttendanceController::class, 'total']);
     Route::get(AttendanceController::route . '/admin/check', [AttendanceController::class, 'check']);
+    Route::get(AttendanceController::route . '/emp/today', [AttendanceController::class, 'today']);
 
     /** Work */
     Route::apiResource(WorkController::route, WorkController::class);
@@ -69,6 +70,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource(PermitController::route, PermitController::class);
     Route::get(PermitController::route . '/{user}/user', [PermitController::class, 'user']);
     Route::post(PermitController::route . '/{permit}/restore', [PermitController::class, 'restore']);
+    Route::get(PermitController::route . '/emp/today', [PermitController::class, 'today']);
 });
 
 // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

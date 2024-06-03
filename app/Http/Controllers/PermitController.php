@@ -11,9 +11,11 @@ use App\Data\Permit\PermitResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Data\Permit\PermitCreateRequest;
+use App\Data\Permit\PermitTodayRequest;
 use App\Data\Permit\PermitUpdateRequest;
 use App\Exceptions\ModelTrashedException;
 use App\Interfaces\ApiBasicReadInterfaces;
+use Illuminate\Support\Facades\DB;
 use Spatie\LaravelData\PaginatedDataCollection;
 
 class PermitController extends Controller implements ApiBasicReadInterfaces
@@ -49,6 +51,33 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
         return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
+    public function today(PermitTodayRequest $req)
+    {
+        $date = $req->date->format('Y-m-d');
+
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        $result = DB::table('permits')
+            ->whereDate('date', '=', $date)
+            ->where('user_id', '=', $userAuth->id)
+            ->first(['*']);
+
+        // $result = Permit::whereDate('date', '=', $date)
+        //     ->first(['*']);
+
+        if ($result == null)
+            return $this->success(null, Response::HTTP_OK, 'TODO');
+
+        (array) $data = PermitResponse::from(
+            $result
+        )
+            // ->include('user')
+            ->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
     public function user(User $user)
     {
         Gate::authorize('user', [Permit::class, $user]);
@@ -77,10 +106,18 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
             ['user_id' => $userAuth->id]
         ));
 
+        if ($req->images !== null)
+            foreach ($req->images as $index => $uploadedFile) {
+                $permit
+                    ->addMedia($uploadedFile)
+                    ->usingName($permit->id . '-' . $permit->user_id . '-' . $permit->type . '-' . $index)
+                    ->toMediaCollection(Permit::IMAGE);
+            }
+
         (array) $data = PermitResponse::from(
             $permit
         )
-            ->include('user')
+            // ->include('user')
             ->toArray();
 
         return $this->success($data, Response::HTTP_CREATED, 'TODO');

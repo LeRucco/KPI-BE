@@ -34,7 +34,11 @@ class PermitCreateRequest extends Data
         public Carbon $date,
 
         #[Max(200)]
-        public ?string $description,
+        public string $description,
+
+        /** @var UploadedFile */
+        #[Max(1024 * 1024 * 10)]
+        public array $images,
     ) {
     }
 }

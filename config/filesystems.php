@@ -46,6 +46,14 @@ return [
             'throw' => false,
         ],
 
+        'permit_image' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/permit'),
+            'url' => env('APP_URL') . '/permit',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
@@ -89,6 +97,7 @@ return [
         // public_path('storage') => storage_path('app/public'),
         public_path('assignment') => storage_path('app/public/assignment'),
         public_path('user') => storage_path('app/public/user'),
+        public_path('permit') => storage_path('app/public/permit'),
     ],
 
 ];

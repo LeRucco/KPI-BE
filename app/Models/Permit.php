@@ -7,10 +7,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Permit extends Model
+class Permit extends Model implements HasMedia
 {
-    use SoftDeletes;
+    use SoftDeletes, InteractsWithMedia;
+
+    const IMAGE = 'permit_image';
 
     protected $table = 'permits';
 
@@ -19,6 +23,7 @@ class Permit extends Model
         'type',
         'status',
         'date',
+        'description',
     ];
 
     public function user(): BelongsTo
@@ -38,5 +43,11 @@ class Permit extends Model
             return $this::withTrashed()->find($id);
 
         return $this::find($id);
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection($this::IMAGE)
+            ->useDisk($this::IMAGE);
     }
 }

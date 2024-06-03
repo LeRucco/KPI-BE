@@ -2,8 +2,6 @@
 
 namespace App\Data\AssignmentImage;
 
-use App\Models\AssignmentImage;
-use Illuminate\Support\Collection;
 use Spatie\LaravelData\Resource;
 use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;

@@ -11,7 +11,6 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Enums\AttendanceStatusEnum;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Database\Query\Builder;
@@ -24,6 +23,7 @@ use App\Data\Attendance\AttendanceCheckRequest;
 use App\Data\Attendance\AttendanceTotalRequest;
 use Spatie\LaravelData\PaginatedDataCollection;
 use App\Data\Attendance\AttendanceCreateRequest;
+use App\Data\Attendance\AttendanceTodayRequest;
 use App\Data\Attendance\AttendanceUpdateRequest;
 use App\Data\Attendance\AttendanceUpdateStatusRequest;
 
@@ -49,8 +49,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function check(AttendanceCheckRequest $req)
     {
-        // return $req;
-        Gate::authorize('viewAny', [Attendance::class]);
+        Gate::authorize('check', [Attendance::class]);
 
         $date = $req->date->format('Y-m-d');
         $status = $req->status == null ? null : $req->status->value;
@@ -81,6 +80,8 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
 
     public function total(AttendanceTotalRequest $req)
     {
+        Gate::authorize('total', [Attendance::class]);
+
         $date = $req->date->format('Y-m-d');
 
         $clockInDown = "$date 06:00:00";
@@ -153,6 +154,34 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
         $totalAlpha = $users->count() - $totalAttend;
 
         (array) $data = [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function today(AttendanceTodayRequest $req)
+    {
+        Gate::authorize('today', [Attendance::class]);
+
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        $date = $req->date->format('Y-m-d');
+
+        $result = DB::table('attendances')
+            ->join('users', 'attendances.user_id', '=', 'users.id')
+            ->where(function (Builder $query) use ($date) {
+                $query->whereDate('attendances.clock_in', '=', $date)
+                    ->orWhereDate('attendances.clock_out', '=', $date);
+            })
+            ->where('attendances.user_id', '=', $userAuth->id)
+            ->orderBy('attendances.id', 'asc')
+            ->select(['attendances.*', 'users.full_name'])
+            ->get();
+
+        (array) $data = AttendanceResponse::collect(
+            $result->toArray(),
+            DataCollection::class
+        )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
     }
