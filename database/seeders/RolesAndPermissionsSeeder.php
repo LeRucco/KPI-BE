@@ -40,6 +40,10 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $roleEmployee = Role::findByName(RoleEnum::EMPLOYEE->value);
         $roleEmployee->givePermissionTo([
+            PermissionEnum::USER_READ,
+            PermissionEnum::USER_READTRASHED,
+            PermissionEnum::USER_UPDATE,
+
             PermissionEnum::ASSIGNMENT_CREATE,
             PermissionEnum::ASSIGNMENT_READ,
             PermissionEnum::ASSIGNMENT_UPDATE,

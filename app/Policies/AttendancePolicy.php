@@ -48,7 +48,7 @@ class AttendancePolicy
         return false;
     }
 
-    public function total(User $user): bool
+    public function totalAdmin(User $user): bool
     {
         return false;
     }

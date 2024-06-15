@@ -1,0 +1,436 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Data\AttendancePermit\AttendancePermitDetailDateRequest;
+use DateTime;
+use DatePeriod;
+use DateInterval;
+use App\Models\User;
+use App\Enums\RoleEnum;
+use App\Enums\PermitTypeEnum;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use App\Enums\AttendanceStatusEnum;
+use Illuminate\Support\Facades\Auth;
+use Spatie\LaravelData\DataCollection;
+use App\Data\AttendancePermit\AttendancePermitMonthRequest;
+use App\Data\AttendancePermit\AttendancePermitMonthResponse;
+use App\Data\AttendancePermit\AttendancePermitTotalEmpRequest;
+use App\Data\AttendancePermit\AttendancePermitTotalAdminRequest;
+use App\Enums\AttendancePermitSourceEnum;
+use Illuminate\Database\Query\Builder;
+
+class AttendancePermitController extends Controller
+{
+    const route = 'attendance-permit';
+
+    public function detailDate(AttendancePermitDetailDateRequest $req)
+    {
+        // TODO Policy
+        $date = $req->date->format('Y-m-d');        // Selected Date
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        /// Attendance
+        $colorSuccess = 'green';
+        $colorFailed = 'red';
+
+        /// Permit
+        $colorSick = 'pink';
+        $colorPaidLeave = 'orange';
+        $colorLeave = 'purple';
+
+        if ($req->source == AttendancePermitSourceEnum::ATTENDANCE) {
+            $result = DB::table('attendances')
+                ->where('user_id', '=', $userAuth->id)
+                ->where(function (Builder $query) use ($date) {
+                    $query->whereDate('attendances.clock_in', '=', $date)
+                        ->orWhereDate('attendances.clock_out', '=', $date);
+                })
+                ->orderBy('id', 'asc')
+                ->selectRaw('
+                    ? as source
+                    , IFNULL(clock_in, clock_out) as date
+                    , status
+                    , case
+                        when a.clock_in is not null AND a.status != :status1 then :color_success1
+                        when a.clock_in is not null AND a.status = :status2 then :color_failed1
+                        else NULL
+                    end as color1
+                ', [
+                    AttendancePermitSourceEnum::ATTENDANCE->value,
+                ])
+                ->get();
+            return $result;
+        } else if ($req->source == AttendancePermitSourceEnum::PERMIT) {
+            return 'Per';
+        }
+
+        return $req;
+    }
+
+    public function totalEmp(AttendancePermitTotalEmpRequest $req)
+    {
+        // TODO Policy
+        $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
+        $fromDate = $req->date->format('Y-m') . '-01';    // First Date of the Month
+        $toDate = $req->date->format('Y-m-d');        // Selected Date / Today Date
+        $clockInLimit = '08:00:00';
+        $clockOutLimit = '17:00:00';
+
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        $userId = $userAuth->id;
+        // return [$userId, $selectedMonthYear, $fromDate, $toDate, $clockInLimit, $clockOutLimit];
+
+        // TODO Use Query Builder for future development --Le Rucco
+        $totalAttend = DB::scalar('
+        select COUNT(*)
+            from (
+                select
+                    DATE(combine_clock.clock) as clock
+                    , COUNT(*) as clockaa
+                from (
+                    select
+                        IFNULL(clock_in, clock_out) as clock
+                    from attendances a
+                    where 1 = 1
+                        and a.user_id = :user_idz
+                        and a.status != 3
+                        and
+                        (
+                            DATE_FORMAT(a.clock_in, "%Y-%m") = :selected_month_year1 /* STUPID PDO PHP Limitation*/
+                            or
+                            DATE_FORMAT(a.clock_out, "%Y-%m") = :selected_month_year2 /* STUPID PDO PHP Limitation*/
+                        )
+                        and
+                        (
+                            TIME_FORMAT(a.clock_in, "%T") <= :clock_in_limit
+                            or
+                            TIME_FORMAT(a.clock_out, "%T") >= :clock_out_limit
+                        )
+                ) as combine_clock
+                group by (DATE(clock))
+                having COUNT(*) >= 2
+            ) as rowitems
+        ', [
+            'user_idz' => $userId,
+            'selected_month_year1' => $selectedMonthYear,
+            'selected_month_year2' => $selectedMonthYear,
+            'clock_in_limit' => $clockInLimit,
+            'clock_out_limit' => $clockOutLimit,
+        ]);
+        // return $totalAttend;
+
+        $totalLateCheckIn = DB::scalar('
+        select COUNT(*) as rowitems
+            from (
+                select *
+                from attendances a
+                where 1 = 1
+                    and a.user_id = :user_id2
+                    and a.status != 3
+                    and
+                    (
+                        DATE_FORMAT(a.clock_in, "%Y-%m") = :selected_month_year1
+                        or
+                        DATE_FORMAT(a.clock_out, "%Y-%m") = :selected_month_year2
+                    )
+                    and TIME_FORMAT(a.clock_in, "%T") > :clock_in_limit
+            ) as rowitems
+        ', [
+            'user_id2' => $userId,
+            'selected_month_year1' => $selectedMonthYear,
+            'selected_month_year2' => $selectedMonthYear,
+            'clock_in_limit' => $clockInLimit
+        ]);
+
+        $totalEarlyCheckOut = DB::scalar('
+        select COUNT(*) as rowitems
+        from (
+            select *
+            from attendances a
+            where 1 = 1
+                and a.user_id = :user_id2
+                and a.status != 3
+                and
+                (
+                    DATE_FORMAT(a.clock_in, "%Y-%m") = :selected_month_year1
+                    or
+                    DATE_FORMAT(a.clock_out, "%Y-%m") = :selected_month_year2
+                )
+                and TIME_FORMAT(a.clock_out, "%T") < :clock_out_limit
+        ) as rowitems
+        ', [
+            'user_id2' => $userId,
+            'selected_month_year1' => $selectedMonthYear,
+            'selected_month_year2' => $selectedMonthYear,
+            'clock_out_limit' => $clockOutLimit
+        ]);
+
+        $totalAlpha = $this->number_of_working_days($fromDate, $toDate) - $totalAttend;
+
+        $totalSickOrLeave = DB::scalar('
+        select COUNT(*) as rowitems
+        from permits p
+        where 1 = 1
+            and p.user_id = :user_id2
+            and DATE_FORMAT(p.date, "%Y-%m") = :selected_month_year
+            and p.type in (1,3) /* 1 = Sick/Sakit, 3 = Leave/Izin */
+            and p.status = 1 /* 2 = approved */
+        ', [
+            'user_id2' => $userId,
+            'selected_month_year' => $selectedMonthYear,
+        ]);
+
+        $totalPaidLeave = DB::scalar('
+        select COUNT(*) as rowitems
+        from permits p
+        where 1 = 1
+            and p.user_id = :user_id2
+            and DATE_FORMAT(p.date, "%Y-%m") = :selected_month_year
+            and p.type = 2 /* 2 = Paid Leave/Cuti */
+            and p.status = 2 /* 2 = approved */
+        ', [
+            'user_id2' => $userId,
+            'selected_month_year' => $selectedMonthYear,
+        ]);
+
+        (array) $data = [$totalAttend, $totalLateCheckIn, $totalEarlyCheckOut, $totalAlpha, $totalSickOrLeave, $totalPaidLeave];
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function totalAdmin(AttendancePermitTotalAdminRequest $req)
+    {
+        // TODO Policy
+
+        $date = $req->date->format('Y-m-d');
+
+        $clockInDown = "$date 06:00:00";
+        $clockInUp = "$date 08:00:00";
+        $clockOutDown = "$date 17:00:00";
+        $clockOutUp = "$date 23:59:59";
+
+        $totalAttend = DB::scalar("
+        select
+            count(user_id)
+        from (
+            select
+                user_id , COUNT(*)
+            from attendances a
+            where
+                status != 3
+                and
+                (
+                    clock_in between :clock_in_down and :clock_in_up
+                    or
+                    clock_out between :clock_out_down and :clock_out_up
+                )
+            group by (user_id)
+            having count(*) >= 2
+        ) as rowitems;
+        ", [
+            'clock_in_down' => $clockInDown,
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown,
+            'clock_out_up' => $clockOutUp
+        ]);
+
+        $totalLate = DB::scalar("
+        select
+            COUNT(user_id)
+        from attendances a
+        where
+            status != 3
+            and
+            clock_in > :clock_in_up
+            and
+            clock_in < :clock_out_down
+        ", [
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown
+        ]);
+
+        $totalEarlyLeave = DB::scalar("
+        select
+            COUNT(user_id)
+        from attendances a
+        where
+            status != 3
+            and
+            clock_out > :clock_in_up
+            and
+            clock_out < :clock_out_down
+        ", [
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown
+        ]);
+
+        /** @var Collection */
+        $users = User::withoutRole([
+            RoleEnum::SUPER_ADMIN->value,
+            RoleEnum::ADMIN->value,
+            RoleEnum::DEVELOPER->value
+        ])->get();
+
+        $totalAlpha = $users->count() - $totalAttend;
+
+        (array) $data = [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function month(AttendancePermitMonthRequest $req)
+    {
+        // TODO policy
+
+        $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
+
+        /// Attendance
+        $attendanceStatusReject = AttendanceStatusEnum::REJECT->value;
+        $colorSuccess = 'green';
+        $colorFailed = 'red';
+
+        /// Permit
+        $colorSick = 'pink';
+        $colorPaidLeave = 'orange';
+        $colorLeave = 'purple';
+        $permitTypeSick = PermitTypeEnum::SICK->value;
+        $permitTypePaidLeave = PermitTypeEnum::PAID_LEAVE->value;
+        $permitTypeLeave = PermitTypeEnum::LEAVE->value;
+
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        $result = DB::select("
+        select *
+        from (
+            select
+                :source_attendance as source
+                , final_attendance.*
+            from (
+                select
+                    DATE(combine_clock.clock) as date
+                    , group_concat(combine_clock.color1) as color1
+                    , group_concat(combine_clock.color2) as color2
+                -- 	, COUNT(*) as clockaa
+                from (
+                    select
+                        IFNULL(a.clock_in, a.clock_out) as clock
+                        , case
+                            when a.clock_in is not null AND a.status != :status1 then :color_success1
+                            when a.clock_in is not null AND a.status = :status2 then :color_failed1
+                            else NULL
+                        end as color1
+                        , case
+                            when a.clock_out  is not null AND a.status != :status3 then :color_success2
+                            when a.clock_out is not null AND a.status = :status4 then :color_failed2
+                            else null
+                        end as color2
+                        , a.*
+                    from attendances a
+                    where 1 = 1
+                        and a.user_id = :user_id1
+                        and
+                        (
+                            DATE_FORMAT(a.clock_in, '%Y-%m') = :selected_month_year1
+                            or
+                            DATE_FORMAT(a.clock_out, '%Y-%m') = :selected_month_year2
+                        )
+                ) as combine_clock
+                group by DATE(clock)
+                having COUNT(*) >= 2
+            ) as final_attendance
+            union all
+            select
+                :source_permit as source
+                , DATE(p.date) as date
+                , case
+                    when type = :type_sick then :color_sick
+                    when type = :type_paid_leave then :color_paid_leave
+                    when type = :type_leave then :color_leave
+                    else NULL
+                end as color1
+                , null as color2
+            from permits p
+            where 1 = 1
+                and p.user_id = :user_id2
+                and
+                (
+                    DATE_FORMAT(p.date, '%Y-%m') = :selected_month_year3
+                )
+        ) as final
+        order by final.date ASC
+        ", [
+            'source_attendance' => AttendancePermitSourceEnum::ATTENDANCE->value,
+            'source_permit'     => AttendancePermitSourceEnum::PERMIT->value,
+            'user_id1'  => $userAuth->id,
+            'user_id2'  => $userAuth->id,
+            'selected_month_year1' => $selectedMonthYear,
+            'selected_month_year2' => $selectedMonthYear,
+            'selected_month_year3' => $selectedMonthYear,
+            'status1'   => $attendanceStatusReject,
+            'status2'   => $attendanceStatusReject,
+            'status3'   => $attendanceStatusReject,
+            'status4'   => $attendanceStatusReject,
+            'color_success1'    => $colorSuccess,
+            'color_failed1'     => $colorFailed,
+            'color_success2'    => $colorSuccess,
+            'color_failed2'     => $colorFailed,
+            'color_sick'        => $colorSick,
+            'color_paid_leave'  => $colorPaidLeave,
+            'color_leave'       => $colorLeave,
+            'type_sick'         => $permitTypeSick,
+            'type_paid_leave'   => $permitTypePaidLeave,
+            'type_leave'        => $permitTypeLeave,
+        ]);
+
+        (array) $data = AttendancePermitMonthResponse::collect(
+            $result,
+            DataCollection::class
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    // https://stackoverflow.com/questions/336127/calculate-business-days/19221403#19221403
+    private function number_of_working_days(String $from, String $to)
+    {
+        $workingDays = [1, 2, 3, 4, 5]; # date format = N (1 = Monday, ...)
+        // $holidayDays = ['*-12-25', '*-01-01', '2013-12-23']; # variable and fixed holidays
+        $holidayDays = []; // TODO Hari libur nya mau hari apa aja ???
+
+        $from = new DateTime($from);
+        $to = new DateTime($to);
+        $to->modify('+1 day');
+        $interval = new DateInterval('P1D');
+        $periods = new DatePeriod($from, $interval, $to);
+
+        $days = 0;
+        foreach ($periods as $period) {
+            if (!in_array($period->format('N'), $workingDays)) continue;
+            if (in_array($period->format('Y-m-d'), $holidayDays)) continue;
+            if (in_array($period->format('*-m-d'), $holidayDays)) continue;
+            $days++;
+        }
+        return $days;
+    }
+
+    // https://stackoverflow.com/questions/8396507/get-number-of-weekdays-in-a-given-month
+    private function get_weekdays(int $m, int $y)
+    {
+        $lastday = date("t", mktime(0, 0, 0, $m, 1, $y)); // Total day within selected month and year
+        return $lastday;
+        $weekdays = 0;
+        for ($d = 29; $d <= $lastday; $d++) {
+            $wd = date("w", mktime(0, 0, 0, $m, $d, $y));
+            if ($wd > 0 && $wd < 6) {
+                $weekdays++;
+            }
+        }
+        return $weekdays + 20;
+    }
+}

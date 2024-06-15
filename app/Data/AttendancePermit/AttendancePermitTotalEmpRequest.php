@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Data\Attendance;
+namespace App\Data\AttendancePermit;
 
 use App\Models\Custom\MyCarbonImmutableDate;
 use Carbon\CarbonImmutable;
@@ -11,7 +11,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 #[MapName(SnakeCaseMapper::class)]
-class AttendanceTotalRequest extends Data
+class AttendancePermitTotalEmpRequest extends Data
 {
     public function __construct(
 

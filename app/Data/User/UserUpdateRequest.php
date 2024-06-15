@@ -17,7 +17,7 @@ class UserUpdateRequest extends Data
     public function __construct(
 
         #[Max(20)]
-        public string $position,
+        public ?string $position,
 
         #[Max(50)]
         public string $fullName,
@@ -31,37 +31,37 @@ class UserUpdateRequest extends Data
         #[Max(13)]
         public string $bpjsKesehatan,
 
-        public int $payrate,
+        public ?int $payrate,
 
         #[Max(16)]
         public string $npwp,
 
         #[WithCastAndTransformer(MyCarbon::class)]
-        public Carbon $doh,
+        public ?Carbon $doh,
 
         #[Max(20)]
-        public string $birthPlace,
+        public ?string $birthPlace,
 
         #[WithCastAndTransformer(MyCarbon::class)]
-        public Carbon $birthDate,
+        public ?Carbon $birthDate,
 
         #[Max(10)]
-        public string $religion,
+        public ?string $religion,
 
         #[Max(20)]
         public string $phoneNumber,
 
         #[Max(100)]
-        public string $email,
+        public ?string $email,
 
         #[Max(20)]
-        public string $city,
+        public ?string $city,
 
         #[Max(200)]
         public string $address,
 
         #[Max(20)]
-        public string $status,
+        public ?string $status,
 
     ) {
     }

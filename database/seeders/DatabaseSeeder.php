@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             WorkSeeder::class,
             WorkRatioSeeder::class,
             AttendanceSeeder::class,
+            PermitSeeder::class,
             // AssignmentSeeder::class,
             // AssignmentImageSeeder::class,
         ]);

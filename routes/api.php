@@ -3,6 +3,7 @@
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\AssignmentImageController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\AttendancePermitController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DevController;
 use App\Http\Controllers\PermitController;
@@ -32,7 +33,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     /** User Profile */
     Route::apiResource(UserController::route, UserController::class);
-    Route::post(UserController::route . '/{user}/image', [UserController::class, 'updateImage']);
+    Route::post(UserController::route . '/profile/update-image', [UserController::class, 'updateImage']);
     Route::get(UserController::route . '/attendance/dropdown', [UserController::class, 'attendanceDropdown']);
 
     /** Attendance */
@@ -40,9 +41,15 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(AttendanceController::route . '/{user}/user', [AttendanceController::class, 'user']);
     Route::post(AttendanceController::route . '/{attendance}/restore', [AttendanceController::class, 'restore']);
     Route::put(AttendanceController::route . '/{attendance}/update-status', [AttendanceController::class, 'updateStatus']);
-    Route::get(AttendanceController::route . '/admin/total', [AttendanceController::class, 'total']);
+
     Route::get(AttendanceController::route . '/admin/check', [AttendanceController::class, 'check']);
     Route::get(AttendanceController::route . '/emp/today', [AttendanceController::class, 'today']);
+
+    /** Attendance Permit */
+    Route::get(AttendancePermitController::route . '/admin/total', [AttendancePermitController::class, 'totalAdmin']);
+    Route::get(AttendancePermitController::route . '/emp/total', [AttendancePermitController::class, 'totalEmp']);
+    Route::get(AttendancePermitController::route . '/emp/month', [AttendancePermitController::class, 'month']);
+    Route::get(AttendancePermitController::route . '/emp/detail-date', [AttendancePermitController::class, 'detailDate']);
 
     /** Work */
     Route::apiResource(WorkController::route, WorkController::class);

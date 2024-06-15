@@ -89,19 +89,22 @@ class UserController extends Controller implements ApiBasicReadInterfaces
         return $this->error($data, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
-    public function updateImage(UserUpdateImageRequest $req, User $user)
+    public function updateImage(UserUpdateImageRequest $req)
     {
-        Gate::authorize('updateImage', [User::class, $user]);
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        Gate::authorize('updateImage', [User::class, $userAuth]);
 
         if ($req->image !== null) {
-            $user
+            $userAuth
                 ->addMedia($req->image)
-                ->usingName($user->id . '-' . $user->nrp)
+                ->usingName($userAuth->id . '-' . $userAuth->nrp)
                 ->toMediaCollection(User::IMAGE);
         }
 
-        (array) $data = UserImageResponse::from(
-            $user->getMedia(User::IMAGE)->first()
+        (array) $data = UserResponse::from(
+            $userAuth
         )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');

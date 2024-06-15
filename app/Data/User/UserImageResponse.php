@@ -27,20 +27,17 @@ class UserImageResponse extends Resource
         public string $url
     ) {
     }
+    public static function fromMediaModel(Media $media): UserImageResponse | null
+    {
+        // if ($media->count() === 0) return null;
 
-    // public static function fromModel(AssignmentImage $assignmentImage): AssignmentImageResponse
-    // {
-    //     $images = $assignmentImage->getMedia(AssignmentImage::ASSIGNMENT)->map(function (Media $media) {
-    //         // return $media->getFullUrl() . '  ' . $media->getPath() . ' ' . $media->getUrl() . ' ' . $media->getPathRelativeToRoot();
-    //         return $media->getFullUrl();
-    //     });
-
-    //     return new AssignmentImageResponse(
-    //         $assignmentImage->id,
-    //         $assignmentImage->assignment_id,
-    //         $images,
-    //     );
-    // }
+        return new UserImageResponse(
+            $media->id,
+            $media->uuid,
+            $media->name,
+            $media->getFullUrl()
+        );
+    }
 
     public static function fromCollection(Collection $media): UserImageResponse | null
     {
@@ -53,16 +50,4 @@ class UserImageResponse extends Resource
             $media->first()->getFullUrl()
         );
     }
-
-    // public static function fromMedia(Media $media): UserImageResponse | null
-    // {
-    //     if ($media === null) return null;
-
-    //     return new UserImageResponse(
-    //         $media->id,
-    //         $media->uuid,
-    //         $media->name,
-    //         $media->getFullUrl()
-    //     );
-    // }
 }
