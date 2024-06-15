@@ -18,6 +18,6 @@ class MyCarbon implements Cast, Transformer
 
     public function transform(DataProperty $property, mixed $value, TransformationContext $context): string
     {
-        return $value->format('Y-m-d h:i:s');
+        return $value->format('Y-m-d H:i:s');
     }
 }

@@ -21,19 +21,19 @@ class AssignmentImageSeeder extends Seeder
                 continue;
         }
 
-        foreach (Assignment::all(['id']) as $assignment) {
+        // foreach (Assignment::all(['id']) as $assignment) {
 
-            AssignmentImage::create([
-                'assignment_id' => $assignment->id,
-                'image' => fake()->imageUrl(400, 400)
-            ]);
+        //     AssignmentImage::create([
+        //         'assignment_id' => $assignment->id,
+        //         'image' => fake()->imageUrl(400, 400)
+        //     ]);
 
-            // WKWKWKWKWK biar ada multiple image aja sih ini
-            if ($assignment->id % 3 == 0)
-                AssignmentImage::create([
-                    'assignment_id' => $assignment->id,
-                    'image' => fake()->imageUrl(400, 400)
-                ]);
-        }
+        //     // WKWKWKWKWK biar ada multiple image aja sih ini
+        //     if ($assignment->id % 3 == 0)
+        //         AssignmentImage::create([
+        //             'assignment_id' => $assignment->id,
+        //             'image' => fake()->imageUrl(400, 400)
+        //         ]);
+        // }
     }
 }

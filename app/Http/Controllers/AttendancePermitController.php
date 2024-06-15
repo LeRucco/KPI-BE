@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\AttendancePermit\AttendancePermitDetailDateRequest;
+use App\Data\AttendancePermit\AttendancePermitDetailDateResponse;
 use DateTime;
 use DatePeriod;
 use DateInterval;
@@ -19,6 +20,7 @@ use App\Data\AttendancePermit\AttendancePermitMonthResponse;
 use App\Data\AttendancePermit\AttendancePermitTotalEmpRequest;
 use App\Data\AttendancePermit\AttendancePermitTotalAdminRequest;
 use App\Enums\AttendancePermitSourceEnum;
+use App\Enums\CalenderColorEnum;
 use Illuminate\Database\Query\Builder;
 
 class AttendancePermitController extends Controller
@@ -32,42 +34,68 @@ class AttendancePermitController extends Controller
         /** @var \App\Models\User */
         $userAuth = Auth::user();
 
-        /// Attendance
-        $colorSuccess = 'green';
-        $colorFailed = 'red';
-
-        /// Permit
-        $colorSick = 'pink';
-        $colorPaidLeave = 'orange';
-        $colorLeave = 'purple';
+        /** @var \Illuminate\Support\Collection */
+        $result = collect();
 
         if ($req->source == AttendancePermitSourceEnum::ATTENDANCE) {
             $result = DB::table('attendances')
                 ->where('user_id', '=', $userAuth->id)
                 ->where(function (Builder $query) use ($date) {
-                    $query->whereDate('attendances.clock_in', '=', $date)
-                        ->orWhereDate('attendances.clock_out', '=', $date);
+                    $query->whereDate('clock_in', '=', $date)
+                        ->orWhereDate('clock_out', '=', $date);
                 })
                 ->orderBy('id', 'asc')
                 ->selectRaw('
                     ? as source
                     , IFNULL(clock_in, clock_out) as date
                     , status
+                    , NULL as type
                     , case
-                        when a.clock_in is not null AND a.status != :status1 then :color_success1
-                        when a.clock_in is not null AND a.status = :status2 then :color_failed1
+                        when clock_in is not null AND status != ? then ?
+                        when clock_in is not null AND status = ? then ?
+                        when clock_out is not null AND status != ? then ?
+                        when clock_out is not null AND status = ? then ?
                         else NULL
-                    end as color1
+                    end as color
+
                 ', [
                     AttendancePermitSourceEnum::ATTENDANCE->value,
+                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::ATTEND->value,
+                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::LATE->value,
+                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::ATTEND->value,
+                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::EARLY_LEAVE->value,
                 ])
                 ->get();
-            return $result;
         } else if ($req->source == AttendancePermitSourceEnum::PERMIT) {
-            return 'Per';
+            $result = DB::table('permits')
+                ->where('user_id', '=', $userAuth->id)
+                ->whereDate('date', '=', $date)
+                ->selectRaw('
+                    ? as source
+                    , date
+                    , status
+                    , type
+                    , case
+                        when type = ? then ?
+                        when type = ? then ?
+                        when type = ? then ?
+                        else NULL
+                    end as color
+                ', [
+                    AttendancePermitSourceEnum::PERMIT->value,
+                    PermitTypeEnum::SICK->value, CalenderColorEnum::SICK_OR_LEAVE,
+                    PermitTypeEnum::PAID_LEAVE->value, CalenderColorEnum::PAID_LEAVE,
+                    PermitTypeEnum::LEAVE->value, CalenderColorEnum::SICK_OR_LEAVE,
+                ])
+                ->get();
         }
+        // return $result->toArray();
+        (array) $data = AttendancePermitDetailDateResponse::collect(
+            $result->toArray(),
+            DataCollection::class
+        )->toArray();
 
-        return $req;
+        return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
     public function totalEmp(AttendancePermitTotalEmpRequest $req)
@@ -290,7 +318,6 @@ class AttendancePermitController extends Controller
         $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
 
         /// Attendance
-        $attendanceStatusReject = AttendanceStatusEnum::REJECT->value;
         $colorSuccess = 'green';
         $colorFailed = 'red';
 
@@ -372,10 +399,10 @@ class AttendancePermitController extends Controller
             'selected_month_year1' => $selectedMonthYear,
             'selected_month_year2' => $selectedMonthYear,
             'selected_month_year3' => $selectedMonthYear,
-            'status1'   => $attendanceStatusReject,
-            'status2'   => $attendanceStatusReject,
-            'status3'   => $attendanceStatusReject,
-            'status4'   => $attendanceStatusReject,
+            'status1'   => AttendanceStatusEnum::REJECT->value,
+            'status2'   => AttendanceStatusEnum::REJECT->value,
+            'status3'   => AttendanceStatusEnum::REJECT->value,
+            'status4'   => AttendanceStatusEnum::REJECT->value,
             'color_success1'    => $colorSuccess,
             'color_failed1'     => $colorFailed,
             'color_success2'    => $colorSuccess,

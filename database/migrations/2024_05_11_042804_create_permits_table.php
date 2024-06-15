@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('user_id');
             $table->unsignedTinyInteger('type');
             $table->unsignedTinyInteger('status');
-            $table->date('date');
+            $table->timestamp('date');
             $table->string('description', 200);
 
             $table->softDeletes();
