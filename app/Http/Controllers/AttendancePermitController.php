@@ -47,7 +47,8 @@ class AttendancePermitController extends Controller
                 ->orderBy('id', 'asc')
                 ->selectRaw('
                     ? as source
-                    , IFNULL(clock_in, clock_out) as date
+                    , clock_in as date1
+                    , clock_out as date2
                     , status
                     , NULL as type
                     , case
@@ -72,7 +73,8 @@ class AttendancePermitController extends Controller
                 ->whereDate('date', '=', $date)
                 ->selectRaw('
                     ? as source
-                    , date
+                    , date as date1
+                    , NULL as date2
                     , status
                     , type
                     , case

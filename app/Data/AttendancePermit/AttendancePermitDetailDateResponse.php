@@ -14,7 +14,10 @@ class AttendancePermitDetailDateResponse extends Resource
         public string $source,
 
         #[WithCastAndTransformer(MyCarbonImmutable::class)]
-        public CarbonImmutable $date,
+        public ?CarbonImmutable $date1,
+
+        #[WithCastAndTransformer(MyCarbonImmutable::class)]
+        public ?CarbonImmutable $date2,
 
         public int $status,
 
@@ -25,10 +28,12 @@ class AttendancePermitDetailDateResponse extends Resource
     }
     public static function fromStdClass(stdClass $detailDate): AttendancePermitDetailDateResponse
     {
-        $date = CarbonImmutable::make($detailDate->date);
+        $date1 = CarbonImmutable::make($detailDate->date1);
+        $date2 = CarbonImmutable::make($detailDate->date2);
         return new AttendancePermitDetailDateResponse(
             $detailDate->source,
-            $date,
+            $date1,
+            $date2,
             $detailDate->status,
             $detailDate->type,
             $detailDate->color
