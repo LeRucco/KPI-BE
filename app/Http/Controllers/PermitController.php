@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Permit\PermitCheckRequest;
 use App\Models\User;
 use App\Models\Permit;
 use Illuminate\Http\Request;
@@ -12,10 +13,17 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use App\Data\Permit\PermitCreateRequest;
 use App\Data\Permit\PermitTodayRequest;
+use App\Data\Permit\PermitTotalAdminRequest;
 use App\Data\Permit\PermitUpdateRequest;
+use App\Enums\RoleEnum;
 use App\Exceptions\ModelTrashedException;
 use App\Interfaces\ApiBasicReadInterfaces;
+use DateInterval;
+use DatePeriod;
+use DateTime;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\PaginatedDataCollection;
 
 class PermitController extends Controller implements ApiBasicReadInterfaces
@@ -47,6 +55,40 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
         )
             ->include('user')
             ->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function check(PermitCheckRequest $req)
+    {
+        Gate::authorize('check', [Permit::class]);
+
+        $date = $req->date->format('Y-m-d');
+        $type = $req->type;
+        $status = $req->status == null ? null : $req->status->value;
+        $userId = $req->userId;
+
+        $result = DB::table('permits')
+            ->join('users', 'permits.user_id', '=', 'users.id')
+            ->where(function (Builder $query) use ($date) {
+                $query->whereDate('permits.date', '=', $date);
+            })
+            ->when($type, function (Builder $query, int $type) {
+                $query->where('permits.type', '=', $type);
+            })
+            ->when($status, function (Builder $query, int $status) {
+                $query->where('permits.status', '=', $status);
+            })
+            ->when($userId, function (Builder $query, string $userId) {
+                $query->where('permits.user_id', '=', $userId);
+            })
+            ->select(['permits.*', 'users.full_name'])
+            ->get();
+
+        (array) $data = PermitResponse::collect(
+            $result->toArray(),
+            DataCollection::class
+        )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
     }
@@ -194,5 +236,107 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
             return Permit::query()->withTrashed();
 
         return Permit::query();
+    }
+
+    public function totalAdminPermit(PermitTotalAdminRequest $req)
+    {
+        // TODO Policy
+        $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
+        $fromDate = $req->date->format('Y-m') . '-01';    // First Date of the Month
+        $toDate = $req->date->format('Y-m-d');        // Selected Date / Today Date
+        $clockInLimit = '08:00:00';
+        $clockOutLimit = '17:00:00';
+
+        $totalAttend = DB::scalar('
+        select COUNT(*)
+            from (
+                select
+                    DATE(combine_clock.clock) as clock
+                    , COUNT(*) as clockaa
+                from (
+                    select
+                        IFNULL(clock_in, clock_out) as clock
+                    from attendances a
+                    where
+                        a.status != 3
+                        and
+                        (
+                            DATE_FORMAT(a.clock_in, "%Y-%m") = :selected_month_year1 /* STUPID PDO PHP Limitation*/
+                            or
+                            DATE_FORMAT(a.clock_out, "%Y-%m") = :selected_month_year2 /* STUPID PDO PHP Limitation*/
+                        )
+                        and
+                        (
+                            TIME_FORMAT(a.clock_in, "%T") <= :clock_in_limit
+                            or
+                            TIME_FORMAT(a.clock_out, "%T") >= :clock_out_limit
+                        )
+                ) as combine_clock
+                group by (DATE(clock))
+                having COUNT(*) >= 2
+            ) as rowitems
+        ', [
+            'selected_month_year1' => $selectedMonthYear,
+            'selected_month_year2' => $selectedMonthYear,
+            'clock_in_limit' => $clockInLimit,
+            'clock_out_limit' => $clockOutLimit,
+        ]);
+
+        $totalSickOrLeave = DB::scalar('
+        select COUNT(*) as rowitems
+        from permits p
+        where 1 = 1
+            and DATE_FORMAT(p.date, "%Y-%m") = :selected_month_year
+            and p.type in (1,3) /* 1 = Sick/Sakit, 3 = Leave/Izin */
+            and p.status = 1 /* 2 = approved */
+        ', [
+            'selected_month_year' => $selectedMonthYear,
+        ]);
+
+        $totalPaidLeave = DB::scalar('
+        select COUNT(*) as rowitems
+        from permits p
+        where 1 = 1
+            and DATE_FORMAT(p.date, "%Y-%m") = :selected_month_year
+            and p.type = 2 /* 2 = Paid Leave/Cuti */
+            and p.status = 2 /* 2 = approved */
+        ', [
+            'selected_month_year' => $selectedMonthYear,
+        ]);
+
+        /** @var Collection */
+        $users = User::withoutRole([
+            RoleEnum::SUPER_ADMIN->value,
+            RoleEnum::ADMIN->value,
+            RoleEnum::DEVELOPER->value
+        ])->get();
+
+        $totalAlpha = $this->number_of_working_days($fromDate, $toDate) - $totalAttend;
+
+        (array) $data = [$totalSickOrLeave, $totalPaidLeave, $totalAlpha];
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    private function number_of_working_days(String $from, String $to)
+    {
+        $workingDays = [1, 2, 3, 4, 5]; # date format = N (1 = Monday, ...)
+        // $holidayDays = ['*-12-25', '*-01-01', '2013-12-23']; # variable and fixed holidays
+        $holidayDays = []; // TODO Hari libur nya mau hari apa aja ???
+
+        $from = new DateTime($from);
+        $to = new DateTime($to);
+        $to->modify('+1 day');
+        $interval = new DateInterval('P1D');
+        $periods = new DatePeriod($from, $interval, $to);
+
+        $days = 0;
+        foreach ($periods as $period) {
+            if (!in_array($period->format('N'), $workingDays)) continue;
+            if (in_array($period->format('Y-m-d'), $holidayDays)) continue;
+            if (in_array($period->format('*-m-d'), $holidayDays)) continue;
+            $days++;
+        }
+        return $days;
     }
 }

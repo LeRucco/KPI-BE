@@ -53,6 +53,11 @@ class AttendancePolicy
         return false;
     }
 
+    public function totalAdminAttendance(User $user): bool
+    {
+        return false;
+    }
+
     public function today(User $user): bool
     {
         if ($user->canAny([
