@@ -131,6 +131,17 @@ class PermitPolicy
     }
 
     /**
+     * Determine whether the user can update the status model.
+     */
+    public function updateStatus(User $user, Permit $permit): bool
+    {
+        if ($user->can(PermissionEnum::KPI_UPDATE->value))
+            return true;
+
+        return false;
+    }
+
+    /**
      * Determine whether the user can delete the model.
      */
     public function delete(User $user, Permit $permit): bool

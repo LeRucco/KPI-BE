@@ -15,6 +15,7 @@ use App\Data\Permit\PermitCreateRequest;
 use App\Data\Permit\PermitTodayRequest;
 use App\Data\Permit\PermitTotalAdminRequest;
 use App\Data\Permit\PermitUpdateRequest;
+use App\Data\Permit\PermitUpdateStatusRequest;
 use App\Enums\RoleEnum;
 use App\Exceptions\ModelTrashedException;
 use App\Interfaces\ApiBasicReadInterfaces;
@@ -236,6 +237,23 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
             return Permit::query()->withTrashed();
 
         return Permit::query();
+    }
+
+    public function updateStatus(PermitUpdateStatusRequest $req, Permit $permit)
+    {
+        Gate::authorize('updateStatus', [Permit::class, $permit]);
+
+        (bool) $isSuccess = $permit->update($req->toArray());
+        (array) $data = PermitResponse::from(
+            $permit
+        )
+            // ->include('user')
+            ->toArray();
+
+        if ($isSuccess)
+            return $this->success($data, Response::HTTP_OK, 'TODO');
+
+        return $this->error($data, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
     public function totalAdminPermit(PermitTotalAdminRequest $req)

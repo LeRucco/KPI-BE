@@ -80,6 +80,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(PermitController::route . '/emp/today', [PermitController::class, 'today']);
     Route::get(PermitController::route . '/admin/total', [PermitController::class, 'totalAdminPermit']);
     Route::get(PermitController::route . '/admin/check', [PermitController::class, 'check']);
+    Route::put(PermitController::route . '/{permit}/update-status', [PermitController::class, 'updateStatus']);
+
+    /** Paycheck */
 });
 
 // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
