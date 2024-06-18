@@ -30,6 +30,8 @@ class PermitResponse extends Resource
 
         public string $userId,
 
+        public string $userFullName,
+
         public Lazy | UserResponse $user,
 
         #[Enum(PermitTypeEnum::class)]
@@ -63,7 +65,7 @@ class PermitResponse extends Resource
 
     public static function fromModel(Permit $permit): PermitResponse
     {
-
+        $userFullName = User::find($permit->user_id)->full_name;
         $userData = Lazy::create(fn () => UserResponse::from($permit->user));
         $type = PermitTypeEnum::from($permit->type);
         $status = PermitStatusEnum::from($permit->status);
@@ -77,6 +79,7 @@ class PermitResponse extends Resource
         return new PermitResponse(
             $permit->id,
             $permit->user_id,
+            $userFullName,
             $userData,
             $type,
             $type->name,
@@ -93,6 +96,7 @@ class PermitResponse extends Resource
 
     public static function fromStdClass(stdClass $permit): PermitResponse
     {
+        $userFullName = User::find($permit->user_id)->full_name;
         $userData = Lazy::create(fn () => UserResponse::from(User::find($permit->user_id)));
         $type = PermitTypeEnum::from($permit->type);
         $status = PermitStatusEnum::from($permit->status);
@@ -106,6 +110,7 @@ class PermitResponse extends Resource
         return new PermitResponse(
             $permit->id,
             $permit->user_id,
+            $userFullName,
             $userData,
             $type,
             $type->name,

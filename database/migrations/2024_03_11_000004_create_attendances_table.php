@@ -9,7 +9,6 @@ return new class extends Migration
 
     public function up(): void
     {
-        // TODO Admin saat create karyawan, cuma kasih nrp dan pw doang biar bisa Login ?
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
