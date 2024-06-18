@@ -43,10 +43,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put(AttendanceController::route . '/{attendance}/update-status', [AttendanceController::class, 'updateStatus']);
 
     Route::get(AttendanceController::route . '/admin/check', [AttendanceController::class, 'check']);
+    Route::get(AttendanceController::route . '/admin/total', [AttendanceController::class, 'totalAdminAttendance']);
     Route::get(AttendanceController::route . '/emp/today', [AttendanceController::class, 'today']);
 
     /** Attendance Permit */
-    Route::get(AttendancePermitController::route . '/admin/total', [AttendancePermitController::class, 'totalAdmin']);
     Route::get(AttendancePermitController::route . '/emp/total', [AttendancePermitController::class, 'totalEmp']);
     Route::get(AttendancePermitController::route . '/emp/month', [AttendancePermitController::class, 'month']);
     Route::get(AttendancePermitController::route . '/emp/detail-date', [AttendancePermitController::class, 'detailDate']);
@@ -78,6 +78,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(PermitController::route . '/{user}/user', [PermitController::class, 'user']);
     Route::post(PermitController::route . '/{permit}/restore', [PermitController::class, 'restore']);
     Route::get(PermitController::route . '/emp/today', [PermitController::class, 'today']);
+    Route::get(PermitController::route . '/admin/total', [PermitController::class, 'totalAdminPermit']);
+    Route::get(PermitController::route . '/admin/check', [PermitController::class, 'check']);
 });
 
 // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

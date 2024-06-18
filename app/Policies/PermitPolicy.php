@@ -65,6 +65,16 @@ class PermitPolicy
         return false;
     }
 
+    public function check(User $user): bool
+    {
+        return false;
+    }
+
+    public function totalAdminPermit(User $user): bool
+    {
+        return false;
+    }
+
     /**
      * @param User $user User from token
      * @param User $userModelBinding User from End Point through Route Model Binding

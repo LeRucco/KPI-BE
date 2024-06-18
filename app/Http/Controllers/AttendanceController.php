@@ -22,8 +22,10 @@ use App\Data\Attendance\AttendanceCheckRequest;
 use Spatie\LaravelData\PaginatedDataCollection;
 use App\Data\Attendance\AttendanceCreateRequest;
 use App\Data\Attendance\AttendanceTodayRequest;
+use App\Data\Attendance\AttendanceTotalAdminRequest;
 use App\Data\Attendance\AttendanceUpdateRequest;
 use App\Data\Attendance\AttendanceUpdateStatusRequest;
+use App\Data\AttendancePermit\AttendancePermitTotalAdminRequest;
 
 class AttendanceController extends Controller implements ApiBasicReadInterfaces
 {
@@ -296,87 +298,167 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
             throw new MyValidationException($message);
         }
     }
+
+    public function totalAdminAttendance(AttendancePermitTotalAdminRequest $req)
+    {
+        // TODO Policy
+
+        $date = $req->date->format('Y-m-d');
+
+        $clockInDown = "$date 06:00:00";
+        $clockInUp = "$date 08:00:00";
+        $clockOutDown = "$date 17:00:00";
+        $clockOutUp = "$date 23:59:59";
+
+        $totalAttend = DB::scalar("
+        select
+            count(user_id)
+        from (
+            select
+                user_id , COUNT(*)
+            from attendances a
+            where
+                status != 3
+                and
+                (
+                    clock_in between :clock_in_down and :clock_in_up
+                    or
+                    clock_out between :clock_out_down and :clock_out_up
+                )
+            group by (user_id)
+            having count(*) >= 2
+        ) as rowitems;
+        ", [
+            'clock_in_down' => $clockInDown,
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown,
+            'clock_out_up' => $clockOutUp
+        ]);
+
+        $totalLate = DB::scalar("
+        select
+            COUNT(user_id)
+        from attendances a
+        where
+            status != 3
+            and
+            clock_in > :clock_in_up
+            and
+            clock_in < :clock_out_down
+        ", [
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown
+        ]);
+
+        $totalEarlyLeave = DB::scalar("
+        select
+            COUNT(user_id)
+        from attendances a
+        where
+            status != 3
+            and
+            clock_out > :clock_in_up
+            and
+            clock_out < :clock_out_down
+        ", [
+            'clock_in_up' => $clockInUp,
+            'clock_out_down' => $clockOutDown
+        ]);
+
+        /** @var Collection */
+        $users = User::withoutRole([
+            RoleEnum::SUPER_ADMIN->value,
+            RoleEnum::ADMIN->value,
+            RoleEnum::DEVELOPER->value
+        ])->get();
+
+        $totalAlpha = $users->count() - $totalAttend;
+
+        (array) $data = [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
 }
 
-// public function totalAdmin(AttendanceTotalAdminRequest $req)
-// {
-//     Gate::authorize('total', [Attendance::class]);
+    // public function totalAdmin(AttendanceTotalAdminRequest $req)
+    // {
+    //     Gate::authorize('total', [Attendance::class]);
 
-//     $date = $req->date->format('Y-m-d');
+    //     $date = $req->date->format('Y-m-d');
 
-//     $clockInDown = "$date 06:00:00";
-//     $clockInUp = "$date 08:00:00";
-//     $clockOutDown = "$date 17:00:00";
-//     $clockOutUp = "$date 23:59:59";
+    //     $clockInDown = "$date 06:00:00";
+    //     $clockInUp = "$date 08:00:00";
+    //     $clockOutDown = "$date 17:00:00";
+    //     $clockOutUp = "$date 23:59:59";
 
-//     $totalAttend = DB::scalar("
-//     select
-//         count(user_id)
-//     from (
-//         select
-//             user_id , COUNT(*)
-//         from attendances a
-//         where
-//             status != 3
-//             and
-//             (
-//                 clock_in between :clock_in_down and :clock_in_up
-//                 or
-//                 clock_out between :clock_out_down and :clock_out_up
-//             )
-//         group by (user_id)
-//         having count(*) >= 2
-//     ) as rowitems;
-//     ", [
-//         'clock_in_down' => $clockInDown,
-//         'clock_in_up' => $clockInUp,
-//         'clock_out_down' => $clockOutDown,
-//         'clock_out_up' => $clockOutUp
-//     ]);
+    //     $totalAttend = DB::scalar("
+    //     select
+    //         count(user_id)
+    //         from (
+    //             select
+    //             user_id , COUNT(*)
+    //             from attendances a
+    //             where
+    //             status != 3
+    //             and
+    //             (
+    //                 clock_in between :clock_in_down and :clock_in_up
+    //                 or
+    //                 clock_out between :clock_out_down and :clock_out_up
+    //             )
+    //             group by (user_id)
+    //             having count(*) >= 2
+    //             ) as rowitems;
+    //             ", [
+    //         'clock_in_down' => $clockInDown,
+    //         'clock_in_up' => $clockInUp,
+    //         'clock_out_down' => $clockOutDown,
+    //         'clock_out_up' => $clockOutUp
+    //     ]);
 
-//     $totalLate = DB::scalar("
-//     select
-//         COUNT(user_id)
-//     from attendances a
-//     where
-//         status != 3
-//         and
-//         clock_in > :clock_in_up
-//         and
-//         clock_in < :clock_out_down
-//     ", [
-//         'clock_in_up' => $clockInUp,
-//         'clock_out_down' => $clockOutDown
-//     ]);
+    //     $totalLate = DB::scalar("
+    //         select
+    //         COUNT(user_id)
+    //         from attendances a
+    //         where
+    //         status != 3
+    //         and
+    //         clock_in > :clock_in_up
+    //         and
+    //         clock_in < :clock_out_down
+    //         ", [
+    //         'clock_in_up' => $clockInUp,
+    //         'clock_out_down' => $clockOutDown
+    //     ]);
 
-//     $totalEarlyLeave = DB::scalar("
-//     select
-//         COUNT(user_id)
-//     from attendances a
-//     where
-//         status != 3
-//         and
-//         clock_out > :clock_in_up
-//         and
-//         clock_out < :clock_out_down
-//     ", [
-//         'clock_in_up' => $clockInUp,
-//         'clock_out_down' => $clockOutDown
-//     ]);
+    //     $totalEarlyLeave = DB::scalar("
+    // select
+    //     COUNT(user_id)
+    // from attendances a
+    // where
+    //     status != 3
+    //     and
+    //     clock_out > :clock_in_up
+    //     and
+    //     clock_out < :clock_out_down
+    // ", [
+    //         'clock_in_up' => $clockInUp,
+    //         'clock_out_down' => $clockOutDown
+    //     ]);
 
-//     /** @var Collection */
-//     $users = User::withoutRole([
-//         RoleEnum::SUPER_ADMIN->value,
-//         RoleEnum::ADMIN->value,
-//         RoleEnum::DEVELOPER->value
-//     ])->get();
+    //     /** @var Collection */
+    //     $users = User::withoutRole([
+    //         RoleEnum::SUPER_ADMIN->value,
+    //         RoleEnum::ADMIN->value,
+    //         RoleEnum::DEVELOPER->value
+    //     ])->get();
 
-//     $totalAlpha = $users->count() - $totalAttend;
+    //     $totalAlpha = $users->count() - $totalAttend;
 
-//     (array) $data = [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
+    //     (array) $data = [$totalAttend, $totalLate, $totalEarlyLeave, $totalAlpha];
 
-//     return $this->success($data, Response::HTTP_OK, 'TODO');
-// }
+    //     return $this->success($data, Response::HTTP_OK, 'TODO');
+    // }
 
 // public function totalEmp(AttendanceTotalEmpRequest $req)
 // {
