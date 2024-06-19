@@ -320,13 +320,15 @@ class AttendancePermitController extends Controller
         $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
 
         /// Attendance
-        $colorSuccess = 'green';
-        $colorFailed = 'red';
+        $colorSuccess = CalenderColorEnum::ATTEND->value; // Success clock in and clock out
+        $colorLate = CalenderColorEnum::LATE->value;
+        $colorEarlyLeave = CalenderColorEnum::EARLY_LEAVE->value;
 
         /// Permit
-        $colorSick = 'pink';
-        $colorPaidLeave = 'orange';
-        $colorLeave = 'purple';
+        $colorSick = CalenderColorEnum::SICK_OR_LEAVE->value;
+        $colorLeave = CalenderColorEnum::SICK_OR_LEAVE->value;
+        $colorPaidLeave = CalenderColorEnum::PAID_LEAVE->value;
+
         $permitTypeSick = PermitTypeEnum::SICK->value;
         $permitTypePaidLeave = PermitTypeEnum::PAID_LEAVE->value;
         $permitTypeLeave = PermitTypeEnum::LEAVE->value;
@@ -406,9 +408,9 @@ class AttendancePermitController extends Controller
             'status3'   => AttendanceStatusEnum::REJECT->value,
             'status4'   => AttendanceStatusEnum::REJECT->value,
             'color_success1'    => $colorSuccess,
-            'color_failed1'     => $colorFailed,
+            'color_failed1'     => $colorLate,
             'color_success2'    => $colorSuccess,
-            'color_failed2'     => $colorFailed,
+            'color_failed2'     => $colorEarlyLeave,
             'color_sick'        => $colorSick,
             'color_paid_leave'  => $colorPaidLeave,
             'color_leave'       => $colorLeave,
