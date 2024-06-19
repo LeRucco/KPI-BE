@@ -200,8 +200,6 @@ class AttendancePermitController extends Controller
             'clock_out_limit' => $clockOutLimit
         ]);
 
-        $totalAlpha = $this->number_of_working_days($fromDate, $toDate) - $totalAttend;
-
         $totalSickOrLeave = DB::scalar('
         select COUNT(*) as rowitems
         from permits p
@@ -209,7 +207,7 @@ class AttendancePermitController extends Controller
             and p.user_id = :user_id2
             and DATE_FORMAT(p.date, "%Y-%m") = :selected_month_year
             and p.type in (1,3) /* 1 = Sick/Sakit, 3 = Leave/Izin */
-            and p.status = 1 /* 2 = approved */
+            and p.status = 2 /* 2 = approved */
         ', [
             'user_id2' => $userId,
             'selected_month_year' => $selectedMonthYear,
@@ -227,6 +225,8 @@ class AttendancePermitController extends Controller
             'user_id2' => $userId,
             'selected_month_year' => $selectedMonthYear,
         ]);
+
+        $totalAlpha = $this->number_of_working_days($fromDate, $toDate) - $totalAttend - $totalSickOrLeave - $totalPaidLeave;
 
         (array) $data = [$totalAttend, $totalLateCheckIn, $totalEarlyCheckOut, $totalAlpha, $totalSickOrLeave, $totalPaidLeave];
 
