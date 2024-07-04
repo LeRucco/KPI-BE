@@ -13,16 +13,13 @@ class AttendanceSeeder extends Seeder
     public function run(): void
     {
         /** @var \App\Models\User */
-        $ardi = User::where('nrp', '=', '1010004')->first();
+        $developer = User::where('nrp', '=', 'developer')->first();
 
-        /** @var \App\Models\User */
-        $nur = User::where('nrp', '=', '1010003')->first();
-
-        $month = 6;
+        $month = 7;
 
         // Senin
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_in' => Carbon::create(2024, $month, 3, 8, 0, 0),
             'description' => fake()->text(),
             'status' => 2,
@@ -31,7 +28,7 @@ class AttendanceSeeder extends Seeder
             'location_address' => fake()->streetAddress()
         ]);
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_out' => Carbon::create(2024, $month, 3, 17, 0, 0),
             'description' => fake()->text(),
             'status' => 2,
@@ -42,7 +39,7 @@ class AttendanceSeeder extends Seeder
 
         // Selasa
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_in' => Carbon::create(2024, $month, 4, 8, 30, 0),
             'description' => fake()->text(),
             'status' => 1,
@@ -51,7 +48,7 @@ class AttendanceSeeder extends Seeder
             'location_address' => fake()->streetAddress()
         ]);
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_out' => Carbon::create(2024, $month, 4, 17, 0, 0),
             'description' => fake()->text(),
             'status' => 2,
@@ -62,7 +59,7 @@ class AttendanceSeeder extends Seeder
 
         // Rabu
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_in' => Carbon::create(2024, $month, 5, 8, 0, 0),
             'description' => fake()->text(),
             'status' => 2,
@@ -71,7 +68,7 @@ class AttendanceSeeder extends Seeder
             'location_address' => fake()->streetAddress()
         ]);
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_out' => Carbon::create(2024, $month, 5, 16, 30, 0),
             'description' => fake()->text(),
             'status' => 1,
@@ -82,7 +79,7 @@ class AttendanceSeeder extends Seeder
 
         // Kamis
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_in' => Carbon::create(2024, $month, 6, 8, 30, 0),
             'description' => fake()->text(),
             'status' => 1,
@@ -92,7 +89,7 @@ class AttendanceSeeder extends Seeder
         ]);
 
         Attendance::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'clock_out' => Carbon::create(2024, $month, 6, 16, 30, 0),
             'description' => fake()->text(),
             'status' => 1,
@@ -115,7 +112,7 @@ class AttendanceSeeder extends Seeder
 
         //     // asep Karyawan
         //     Attendance::create([
-        //         'user_id' => $ardi->id,
+        //         'user_id' => $developer->id,
         //         'clock_in' => Carbon::create(2024, $month, $i, rand(8), 0, 0),
         //         // 'clock_out' => fake()->time('H:i:s', '17:0:0'),
         //         'description' => fake()->text(),
@@ -125,7 +122,7 @@ class AttendanceSeeder extends Seeder
         //         'location_address' => fake()->streetAddress()
         //     ]);
         //     Attendance::create([
-        //         'user_id' => $ardi->id,
+        //         'user_id' => $developer->id,
         //         // 'clock_in' => fake()->time('H:i:s', '8:0:0'),
         //         'clock_out' => Carbon::create(2024, $month, $i, rand(16, 17), 0, 0),
         //         'description' => fake()->text(),

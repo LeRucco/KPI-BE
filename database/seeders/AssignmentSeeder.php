@@ -13,10 +13,7 @@ class AssignmentSeeder extends Seeder
     public function run(): void
     {
         /** @var \App\Models\User */
-        $asep = User::where('full_name', '=', 'asep')->first();
-
-        /** @var \App\Models\User */
-        $budi = User::where('full_name', '=', 'budi')->first();
+        $developer = User::where('full_name', '=', 'developer')->first();
 
         for ($i = 1; $i <= 31; $i++) {
             if (
@@ -26,9 +23,9 @@ class AssignmentSeeder extends Seeder
                 $i == 27 || $i == 28
             )
                 continue;
-            // asep
+            // developer
             Assignment::create([
-                'user_id' => $asep->id,
+                'user_id' => $developer->id,
                 'work_id' => rand(1, 10),
                 'date' => Carbon::createFromDate($year = 2024, $month = 1, $day = $i),
                 'description' => fake()->text(),
@@ -37,27 +34,7 @@ class AssignmentSeeder extends Seeder
                 'location_address' => fake()->streetAddress()
             ]);
             Assignment::create([
-                'user_id' => $asep->id,
-                'work_id' => rand(1, 10),
-                'date' => Carbon::createFromDate($year = 2024, $month = 1, $day = $i),
-                'description' => fake()->text(),
-                'latitude' => fake()->latitude($min = -90, $max = 90),
-                'longitude' => fake()->longitude($min = -180, $max = 180),
-                'location_address' => fake()->streetAddress()
-            ]);
-
-            // budi
-            Assignment::create([
-                'user_id' => $budi->id,
-                'work_id' => rand(1, 10),
-                'date' => Carbon::createFromDate($year = 2024, $month = 1, $day = $i),
-                'description' => fake()->text(),
-                'latitude' => fake()->latitude($min = -90, $max = 90),
-                'longitude' => fake()->longitude($min = -180, $max = 180),
-                'location_address' => fake()->streetAddress()
-            ]);
-            Assignment::create([
-                'user_id' => $budi->id,
+                'user_id' => $developer->id,
                 'work_id' => rand(1, 10),
                 'date' => Carbon::createFromDate($year = 2024, $month = 1, $day = $i),
                 'description' => fake()->text(),
