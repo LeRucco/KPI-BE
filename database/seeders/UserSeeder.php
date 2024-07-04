@@ -12,6 +12,8 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        /// admin
+
         User::create([
             'nrp' => 'superadmin',
             'full_name' => 'super admin',
@@ -24,22 +26,24 @@ class UserSeeder extends Seeder
             'password' => Hash::make('admin')
         ])->assignRole(RoleEnum::ADMIN);
 
-        // User::create([
-        //     'nrp' => 'developer',
-        //     'full_name' => 'developer',
-        //     'password' => Hash::make('developer')
-        // ])->assignRole(RoleEnum::DEVELOPER);
+        User::create([
+            'nrp' => 'developer',
+            'full_name' => 'developer',
+            'password' => Hash::make('developer')
+        ])->assignRole(RoleEnum::DEVELOPER);
+
+        /// employee
 
         User::create([
-            'nrp' => '50110041',
-            'full_name' => 'Kusdi',
-            'password' => Hash::make('50110041')
-        ])->assignRole(RoleEnum::ADMIN);
+            'nrp' => '1010001',
+            'full_name' => 'Adhetya Rakhmani Fauzi',
+            'password' => Hash::make('1010001')
+        ])->assignRole(RoleEnum::EMPLOYEE);
 
         User::create([
-            'nrp' => '1010004',
-            'full_name' => 'Ardi Ananta Dwi Prastyo',
-            'password' => Hash::make('1010004')
+            'nrp' => '1010002',
+            'full_name' => 'Indah Susanti',
+            'password' => Hash::make('1010002')
         ])->assignRole(RoleEnum::EMPLOYEE);
 
         User::create([
@@ -48,22 +52,70 @@ class UserSeeder extends Seeder
             'password' => Hash::make('1010003')
         ])->assignRole(RoleEnum::EMPLOYEE);
 
-        // User::create([
-        //     'nrp' => 'asep',
-        //     'full_name' => 'asep',
-        //     'password' => Hash::make('asep')
-        // ])->assignRole(RoleEnum::EMPLOYEE);
+        User::create([
+            'nrp' => '1010005',
+            'full_name' => 'Rinto Tonapa',
+            'password' => Hash::make('1010005')
+        ])->assignRole(RoleEnum::EMPLOYEE);
 
-        // User::create([
-        //     'nrp' => 'budi',
-        //     'full_name' => 'budi',
-        //     'password' => Hash::make('budi')
-        // ])->assignRole(RoleEnum::EMPLOYEE);
+        User::create([
+            'nrp' => '1010006',
+            'full_name' => 'Akmal Qahdafiq',
+            'password' => Hash::make('1010006')
+        ])->assignRole(RoleEnum::EMPLOYEE);
 
-        // User::create([
-        //     'nrp' => 'coco',
-        //     'full_name' => 'coco',
-        //     'password' => Hash::make('coco')
-        // ]);
+        User::create([
+            'nrp' => '1010007',
+            'full_name' => 'Endro Setyo Laksono',
+            'password' => Hash::make('1010007')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010008',
+            'full_name' => 'Resgi Kurniawan',
+            'password' => Hash::make('1010008')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010009',
+            'full_name' => 'Chasiati Rahmadana',
+            'password' => Hash::make('1010009')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010012',
+            'full_name' => 'Pitri Andrianto',
+            'password' => Hash::make('1010012')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010013',
+            'full_name' => 'Hery Lesmana',
+            'password' => Hash::make('1010013')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010014',
+            'full_name' => 'Riska Noviya Enjelina',
+            'password' => Hash::make('1010014')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010015',
+            'full_name' => 'Sari Putriani',
+            'password' => Hash::make('1010015')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010016',
+            'full_name' => 'Mohammad Iskandar Zulkarnain',
+            'password' => Hash::make('1010016')
+        ])->assignRole(RoleEnum::EMPLOYEE);
+
+        User::create([
+            'nrp' => '1010017',
+            'full_name' => 'Abdul Rachman',
+            'password' => Hash::make('1010017')
+        ])->assignRole(RoleEnum::EMPLOYEE);
     }
 }
