@@ -16,12 +16,12 @@ class PermitSeeder extends Seeder
     public function run(): void
     {
         /** @var \App\Models\User */
-        $ardi = User::where('nrp', '=', '1010004')->first();
+        $developer = User::where('nrp', '=', 'developer')->first();
 
         $month = 6;
 
         Permit::create([
-            'user_id' => $ardi->id,
+            'user_id' => $developer->id,
             'type' => 1,
             'status' => 1,
             'date' => Carbon::create(2024, $month, 7, 0, 0, 0),
