@@ -2,33 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Data\AttendancePermit\AttendancePermitDetailDateRequest;
-use App\Data\AttendancePermit\AttendancePermitDetailDateResponse;
 use DateTime;
 use DatePeriod;
 use DateInterval;
 use App\Models\User;
 use App\Enums\RoleEnum;
+use App\Models\Attendance;
 use App\Enums\PermitTypeEnum;
 use Illuminate\Http\Response;
+use App\Enums\CalenderColorEnum;
 use Illuminate\Support\Facades\DB;
 use App\Enums\AttendanceStatusEnum;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Database\Query\Builder;
 use Spatie\LaravelData\DataCollection;
+use App\Enums\AttendancePermitSourceEnum;
 use App\Data\AttendancePermit\AttendancePermitMonthRequest;
 use App\Data\AttendancePermit\AttendancePermitMonthResponse;
 use App\Data\AttendancePermit\AttendancePermitTotalEmpRequest;
+use App\Data\AttendancePermit\AttendancePermitDetailDateRequest;
 use App\Data\AttendancePermit\AttendancePermitTotalAdminRequest;
-use App\Enums\AttendancePermitSourceEnum;
-use App\Enums\CalenderColorEnum;
-use Illuminate\Database\Query\Builder;
+use App\Data\AttendancePermit\AttendancePermitDetailDateResponse;
 
 class AttendancePermitController extends Controller
 {
     const route = 'attendance-permit';
 
     public function detailDate(AttendancePermitDetailDateRequest $req)
-    {
+    {   
+        Gate::authorize('viewAny', [Attendance::class]);
         // TODO Policy
         $date = $req->date->format('Y-m-d');        // Selected Date
         /** @var \App\Models\User */

@@ -13,7 +13,7 @@ class AttendanceSeeder extends Seeder
     public function run(): void
     {
         /** @var \App\Models\User */
-        $developer = User::where('nrp', '=', 'developer')->first();
+        $developer = User::where('nrp', '=', '1010001')->first();
 
         $month = 7;
 
