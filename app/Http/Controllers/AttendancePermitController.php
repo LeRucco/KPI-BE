@@ -31,7 +31,6 @@ class AttendancePermitController extends Controller
 
     public function detailDate(AttendancePermitDetailDateRequest $req)
     {   
-        Gate::authorize('viewAny', [Attendance::class]);
         // TODO Policy
         $date = $req->date->format('Y-m-d');        // Selected Date
         /** @var \App\Models\User */
@@ -105,6 +104,7 @@ class AttendancePermitController extends Controller
 
     public function totalEmp(AttendancePermitTotalEmpRequest $req)
     {
+        Gate::authorize('viewAny', [Attendance::class]);
         // TODO Policy
         $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
         $fromDate = $req->date->format('Y-m') . '-01';    // First Date of the Month
