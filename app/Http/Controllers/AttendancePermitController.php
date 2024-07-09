@@ -31,8 +31,6 @@ class AttendancePermitController extends Controller
 
     public function detailDate(AttendancePermitDetailDateRequest $req)
     {   
-        
-        Gate::authorize('viewAny', [Attendance::class]);
         // TODO Policy
         $date = $req->date->format('Y-m-d');        // Selected Date
         /** @var \App\Models\User */
