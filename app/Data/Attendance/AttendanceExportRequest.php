@@ -5,28 +5,26 @@ namespace App\Data\Attendance;
 use App\Models\User;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Data;
-use App\Enums\AttendanceStatusEnum;
 use Spatie\LaravelData\Attributes\MapName;
 use App\Models\Custom\MyCarbonImmutableDate;
+use Spatie\LaravelData\Attributes\Validation\ArrayType;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\LaravelData\Attributes\Validation\Date;
-use Spatie\LaravelData\Attributes\Validation\Enum;
-use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 #[MapName(SnakeCaseMapper::class)]
-class AttendanceCheckRequest extends Data
+class AttendanceExportRequest extends Data
 {
     public function __construct(
+        /** @var string */
+        #[ArrayType()]
+        public array $usersId,
 
         #[Date(), WithCastAndTransformer(MyCarbonImmutableDate::class)]
-        public CarbonImmutable $date,
+        public CarbonImmutable $startDate,
 
-        #[Enum(AttendanceStatusEnum::class)]
-        public ?AttendanceStatusEnum $status,
-
-        #[Exists(User::class, 'id')]
-        public ?string $userId,
+        #[Date(), WithCastAndTransformer(MyCarbonImmutableDate::class)]
+        public CarbonImmutable $endDate,
     ) {
     }
 }

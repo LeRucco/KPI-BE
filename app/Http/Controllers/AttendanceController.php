@@ -45,7 +45,7 @@ class AttendanceController extends Controller implements ApiBasicReadInterfaces
             ->toArray();
 
         return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
-    }
+        }
 
     public function check(AttendanceCheckRequest $req)
     {

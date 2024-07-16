@@ -18,6 +18,7 @@ Route::get(DevController::route . '/ping', function () {
     return 'hello world';
 });
 
+Route::get(DevController::route . '/attendance-export', [DevController::class, 'attendanceExport']);
 Route::get(DevController::route . '/role-enum', [DevController::class, 'roleEnum']);
 Route::get(DevController::route . '/permission-enum', [DevController::class, 'permissionEnum']);
 Route::get(DevController::route . '/hesoyam', [DevController::class, 'hesoyam']);
@@ -50,6 +51,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(AttendancePermitController::route . '/emp/total', [AttendancePermitController::class, 'totalEmp']);
     Route::get(AttendancePermitController::route . '/emp/month', [AttendancePermitController::class, 'month']);
     Route::get(AttendancePermitController::route . '/emp/detail-date', [AttendancePermitController::class, 'detailDate']);
+    Route::get(AttendancePermitController::route . '/admin/export', [AttendancePermitController::class, 'export']);
 
     /** Work */
     Route::apiResource(WorkController::route, WorkController::class);

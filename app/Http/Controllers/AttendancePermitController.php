@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Data\Attendance\AttendanceExportRequest;
 use DateTime;
 use DatePeriod;
 use DateInterval;
@@ -24,13 +25,14 @@ use App\Data\AttendancePermit\AttendancePermitTotalEmpRequest;
 use App\Data\AttendancePermit\AttendancePermitDetailDateRequest;
 use App\Data\AttendancePermit\AttendancePermitTotalAdminRequest;
 use App\Data\AttendancePermit\AttendancePermitDetailDateResponse;
+use App\Exports\AttendanceExport;
 
 class AttendancePermitController extends Controller
 {
     const route = 'attendance-permit';
 
     public function detailDate(AttendancePermitDetailDateRequest $req)
-    {   
+    {
         // TODO Policy
         $date = $req->date->format('Y-m-d');        // Selected Date
         /** @var \App\Models\User */
@@ -427,6 +429,23 @@ class AttendancePermitController extends Controller
         )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function export(AttendanceExportRequest $req)
+    {
+        /** @var \Illuminate\Support\Collection */
+        $users = User::whereIn('id', $req->usersId)->get(['id', 'full_name']);
+
+        $filename =
+            $req->startDate->format('Y-m-d')
+            . '_'
+            . $req->endDate->format('Y-m-d')
+            . '_'
+            . implode('_', $req->usersId)
+            . '.xlsx';
+
+        return (new AttendanceExport($users, $req->startDate, $req->endDate))
+            ->download($filename);
     }
 
     // https://stackoverflow.com/questions/336127/calculate-business-days/19221403#19221403
