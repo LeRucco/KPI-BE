@@ -76,6 +76,28 @@ class AssignmentPolicy
         return false;
     }
 
+    public function month(User $user): bool
+    {
+        if ($user->canAny([
+            PermissionEnum::ASSIGNMENT_READ->value,
+            PermissionEnum::ASSIGNMENT_READTRASHED->value
+        ]))
+            return true;
+
+        return false;
+    }
+
+    public function today(User $user): bool
+    {
+        if ($user->canAny([
+            PermissionEnum::ASSIGNMENT_READ->value,
+            PermissionEnum::ASSIGNMENT_READTRASHED->value
+        ]))
+            return true;
+
+        return false;
+    }
+
     /**
      * Determine whether the user can view the assignment images model
      */

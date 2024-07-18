@@ -13,6 +13,7 @@ use App\Exceptions\ModelTrashedException;
 use App\Interfaces\ApiBasicReadInterfaces;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\PaginatedDataCollection;
 
 class WorkController extends Controller implements ApiBasicReadInterfaces
@@ -43,6 +44,19 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
             $work
         )
             ->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function daily()
+    {
+        // return 'saaaa';
+        Gate::authorize('daily', [Work::class]);
+
+        (array) $data = WorkResponse::collect(
+            Work::query()->orderBy('id', 'desc')->get(),
+            DataCollection::class
+        )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
     }

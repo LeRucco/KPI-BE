@@ -56,6 +56,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     /** Work */
     Route::apiResource(WorkController::route, WorkController::class);
     Route::post(WorkController::route . '/{work}/restore', [WorkController::class, 'restore']);
+    Route::get(WorkController::route . '/emp/daily', [WorkController::class, 'daily']);
 
     /** Work Ratio */
     Route::apiResource(WorkRatioController::route, WorkRatioController::class);
@@ -66,6 +67,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get(AssignmentController::route . '/{user}/user', [AssignmentController::class, 'user']);
     Route::post(AssignmentController::route . '/{assignment}/restore', [AssignmentController::class, 'restore']);
     Route::get(AssignmentController::route . '/admin/check', [AssignmentController::class, 'check']);
+    Route::get(AssignmentController::route . '/emp/month', [AssignmentController::class, 'month']);
+    Route::get(AssignmentController::route . '/emp/today', [AssignmentController::class, 'today']);
 
     /** Assignment Image */
     Route::get(AssignmentImageController::route . '/{assignment}', [AssignmentImageController::class, 'show']);

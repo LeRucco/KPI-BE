@@ -43,6 +43,17 @@ class WorkPolicy
         return false;
     }
 
+    public function daily(User $user): bool
+    {
+        if ($user->canAny([
+            PermissionEnum::WORK_READ->value,
+            PermissionEnum::WORK_READTRASHED->value
+        ]))
+            return true;
+
+        return false;
+    }
+
     /**
      * Determine whether the user can view the model.
      */

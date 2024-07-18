@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Data\Assignment\AssignmentCheckRequest;
 use App\Data\Assignment\AssignmentCreateRequest;
+use App\Data\Assignment\AssignmentMonthRequest;
 use App\Data\Assignment\AssignmentResponse;
+use App\Data\Assignment\AssignmentTodayRequest;
 use App\Data\Assignment\AssignmentUpdateRequest;
 use Illuminate\Http\Response;
 use App\Enums\PermissionEnum;
@@ -56,6 +58,50 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
 
         (array) $data = AssignmentResponse::collect(
             $result->toArray(),
+            DataCollection::class
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function month(AssignmentMonthRequest $req)
+    {
+        Gate::authorize('month', [Assignment::class]);
+
+        $date = $req->date->format('Y-m');
+
+        /** @var \App\Models\User */
+        $userAuthId = Auth::user()->id;
+
+        $result = DB::table('assignments')
+            ->where('user_id', $userAuthId)
+            ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $date)
+            ->paginate($perPage = 3);
+
+        (array) $data = AssignmentResponse::collect(
+            $result,
+            PaginatedDataCollection::class
+        )->toArray();
+
+        return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function today(AssignmentTodayRequest $req)
+    {
+        Gate::authorize('today', [Assignment::class]);
+
+        $date = $req->date->format('Y-m-d');
+
+        /** @var \App\Models\User */
+        $userAuthId = Auth::user()->id;
+
+        $result = DB::table('assignments')
+            ->whereDate('assignments.date', '=', $date)
+            ->where('assignments.user_id', '=', $userAuthId)
+            ->get();
+
+        (array) $data = AssignmentResponse::collect(
+            $result,
             DataCollection::class
         )->toArray();
 
