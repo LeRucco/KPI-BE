@@ -58,7 +58,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
             ->paginate($perPage = 3);
 
         (array) $data = AssignmentResponse::collect(
-            $result->toArray(),
+            $result,
             PaginatedDataCollection::class
         )->toArray();
 
