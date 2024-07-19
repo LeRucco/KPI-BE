@@ -53,8 +53,8 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
             ->when($userId, function (Builder $query, string $userId) {
                 $query->where('assignments.user_id', '=', $userId);
             })
-            ->select(['assignments.*'])
-            ->get()
+            // ->select(['assignments.*'])
+            // ->get()
             ->paginate($perPage = 3);
 
         (array) $data = AssignmentResponse::collect(
