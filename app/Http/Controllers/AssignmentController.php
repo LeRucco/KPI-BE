@@ -54,14 +54,15 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
                 $query->where('assignments.user_id', '=', $userId);
             })
             ->select(['assignments.*'])
-            ->get();
+            ->get()
+            ->paginate($perPage = 3);
 
         (array) $data = AssignmentResponse::collect(
             $result->toArray(),
-            DataCollection::class
+            PaginatedDataCollection::class
         )->toArray();
 
-        return $this->success($data, Response::HTTP_OK, 'TODO');
+        return $this->successPaginate($data, Response::HTTP_OK, 'TODO');
     }
 
     public function month(AssignmentMonthRequest $req)
