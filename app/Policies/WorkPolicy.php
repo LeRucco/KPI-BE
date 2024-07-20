@@ -45,7 +45,6 @@ class WorkPolicy
 
     public function daily(User $user): bool
     {
-        return false;
         if ($user->canAny([
             PermissionEnum::WORK_READ->value,
             PermissionEnum::WORK_READTRASHED->value
