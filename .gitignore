@@ -3,6 +3,9 @@
 /public/build
 /public/hot
 /public/storage
+/public/assignment
+/public/user
+/public/permit
 /storage/*.key
 /vendor
 .env
