@@ -50,7 +50,6 @@ class WorkController extends Controller implements ApiBasicReadInterfaces
 
     public function daily()
     {
-        // return 'saaaa';
         Gate::authorize('daily', [Work::class]);
 
         (array) $data = WorkResponse::collect(
