@@ -78,7 +78,6 @@ class AssignmentPolicy
 
     public function month(User $user): bool
     {
-        return false;
         if ($user->canAny([
             PermissionEnum::ASSIGNMENT_READ->value,
             PermissionEnum::ASSIGNMENT_READTRASHED->value
