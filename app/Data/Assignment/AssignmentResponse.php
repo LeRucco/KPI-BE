@@ -33,6 +33,8 @@ class AssignmentResponse extends Resource
 
         public string $workId,
 
+        public string $workName,
+
         public Lazy | WorkResponse $work,
 
         #[DataCollectionOf(AssignmentImageResponse::class)]
@@ -68,6 +70,8 @@ class AssignmentResponse extends Resource
 
         $workData = Lazy::create(fn () => WorkResponse::from($assignment->work));
 
+        (string) $workName = $assignment->work->name;
+
         /** @var DataCollection */
         $imagesData = AssignmentImageResponse::collect(
             $assignment->getMedia(Assignment::IMAGE),
@@ -79,6 +83,7 @@ class AssignmentResponse extends Resource
             $assignment->user_id,
             $userData,
             $assignment->work_id,
+            $workName,
             $workData,
             $imagesData,
             Carbon::make($assignment->date),
@@ -99,6 +104,8 @@ class AssignmentResponse extends Resource
 
         $workData = Lazy::create(fn () => WorkResponse::from(Work::find($assignment->work_id)));
 
+        (string) $workName = Work::find($assignment->work_id)->name;
+
         /** @var DataCollection */
         $imagesData = AssignmentImageResponse::collect(
             Assignment::find($assignment->id)->getMedia(Assignment::IMAGE),
@@ -110,6 +117,7 @@ class AssignmentResponse extends Resource
             $assignment->user_id,
             $userData,
             $assignment->work_id,
+            $workName,
             $workData,
             $imagesData,
             Carbon::make($assignment->date),
