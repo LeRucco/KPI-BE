@@ -29,6 +29,8 @@ class AssignmentResponse extends Resource
 
         public string $userId,
 
+        public string $userFullName,
+
         public Lazy | UserResponse $user,
 
         public string $workId,
@@ -70,6 +72,8 @@ class AssignmentResponse extends Resource
 
         $workData = Lazy::create(fn () => WorkResponse::from($assignment->work));
 
+        (string) $userFullName = $assignment->user->full_name;
+
         (string) $workName = $assignment->work->name;
 
         /** @var DataCollection */
@@ -81,6 +85,7 @@ class AssignmentResponse extends Resource
         return new AssignmentResponse(
             $assignment->id,
             $assignment->user_id,
+            $userFullName,
             $userData,
             $assignment->work_id,
             $workName,
@@ -104,6 +109,8 @@ class AssignmentResponse extends Resource
 
         $workData = Lazy::create(fn () => WorkResponse::from(Work::find($assignment->work_id)));
 
+        (string) $userFullName = $assignment->user->full_name;
+
         (string) $workName = Work::find($assignment->work_id)->name;
 
         /** @var DataCollection */
@@ -115,6 +122,7 @@ class AssignmentResponse extends Resource
         return new AssignmentResponse(
             $assignment->id,
             $assignment->user_id,
+            $userFullName,
             $userData,
             $assignment->work_id,
             $workName,
