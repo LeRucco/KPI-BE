@@ -49,12 +49,11 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
         $userId = $req->userId;
 
         $result = DB::table('assignments')
-            ->whereDate('assignments.date', '=', $date)
+            ->where(DB::raw("DATE_FORMAT(date, '%Y-%m-%d')"), $date)
             ->when($userId, function (Builder $query, string $userId) {
-                $query->where('assignments.user_id', '=', $userId);
+                $query->where('user_id', '=', $userId);
             })
-            // ->select(['assignments.*'])
-            // ->get()
+            ->orderBy('id', 'desc')
             ->paginate($perPage = 3);
 
         (array) $data = AssignmentResponse::collect(

@@ -109,7 +109,7 @@ class AssignmentResponse extends Resource
 
         $workData = Lazy::create(fn () => WorkResponse::from(Work::find($assignment->work_id)));
 
-        (string) $userFullName = $assignment->user->full_name;
+        (string) $userFullName = User::find($assignment->user_id)->full_name;
 
         (string) $workName = Work::find($assignment->work_id)->name;
 
