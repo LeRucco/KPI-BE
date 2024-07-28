@@ -48,8 +48,6 @@ class RolesAndPermissionsSeeder extends Seeder
             PermissionEnum::ASSIGNMENT_READ,
             PermissionEnum::ASSIGNMENT_UPDATE,
 
-            PermissionEnum::ASSIGNMENTFILE_READ,
-
             PermissionEnum::ASSIGNMENTIMAGE_CREATE,
             PermissionEnum::ASSIGNMENTIMAGE_READ,
             PermissionEnum::ASSIGNMENTIMAGE_READTRASHED,
@@ -66,7 +64,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
             PermissionEnum::WORKRATIO_READ,
 
+            PermissionEnum::PAYCHECK_READ,
+            PermissionEnum::PAYCHECK_READTRASHED,
+
             PermissionEnum::PAYCHECKFILE_READ,
+            PermissionEnum::PAYCHECKFILE_READTRASHED,
 
             PermissionEnum::PERMIT_CREATE,
             PermissionEnum::PERMIT_READ,

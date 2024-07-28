@@ -205,7 +205,7 @@ class AssignmentController extends Controller implements ApiBasicReadInterfaces
         if ($assignment->trashed())
             throw ModelTrashedException::alreadySoftDeleted();
 
-        $isSuccess = $assignment->delete();
+        (bool) $isSuccess = $assignment->delete();
         (array) $data = AssignmentResponse::from(
             $assignment
         )

@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Data\Assignment;
+namespace App\Data\Paycheck;
 
 use Carbon\Carbon;
-use App\Models\Work;
+use App\Models\User;
 use Spatie\LaravelData\Data;
 use App\Models\Custom\MyCarbon;
 use Spatie\LaravelData\Attributes\MapName;
@@ -14,16 +14,12 @@ use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 #[MapName(SnakeCaseMapper::class)]
-class AssignmentCreateRequest extends Data
+class PaycheckCreateRequest extends Data
 {
+
     public function __construct(
-
-        /// User Id can be taken from the token
-        // #[Exists(User::class, 'id')]
-        // public string $userId,
-
-        #[Exists(Work::class, 'id')]
-        public string $workId,
+        #[Exists(User::class, 'id')]
+        public string $userId,
 
         #[Date(), WithCastAndTransformer(MyCarbon::class)]
         public Carbon $date,
@@ -31,19 +27,9 @@ class AssignmentCreateRequest extends Data
         #[Max(200)]
         public string $description,
 
-        #[Max(50)]
-        public string $latitude,
-
-        #[Max(50)]
-        public string $longitude,
-
-        #[Max(200)]
-        public string $locationAddress,
-
         /** @var UploadedFile */
         #[Max(1024 * 1024 * 10)]    // 10 Mb
-        public ?array $images,
-
+        public ?array $files,
     ) {
     }
 }

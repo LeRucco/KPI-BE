@@ -6,6 +6,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendancePermitController;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\DevController;
+use App\Http\Controllers\PaycheckController;
 use App\Http\Controllers\PermitController;
 use App\Http\Controllers\WorkController;
 use App\Http\Controllers\WorkRatioController;
@@ -89,6 +90,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::put(PermitController::route . '/{permit}/update-status', [PermitController::class, 'updateStatus']);
 
     /** Paycheck */
+    Route::apiResource(PaycheckController::route, PaycheckController::class);
+    Route::post(PaycheckController::route . '/{paycheck}/restore', [PaycheckController::class, 'restore']);
+    Route::get(PaycheckController::route . '/admin/report', [PaycheckController::class, 'report']);
+    Route::get(PaycheckController::route . '/emp/yearly', [PaycheckController::class, 'yearly']);
 });
 
 // Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {

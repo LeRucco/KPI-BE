@@ -12,10 +12,12 @@ use App\Models\Attendance;
 use App\Policies\UserPolicy;
 use App\Policies\WorkPolicy;
 use App\Enums\PermissionEnum;
+use App\Models\Paycheck;
 use App\Policies\PermitPolicy;
 use App\Policies\WorkRatioPolicy;
 use App\Policies\AssignmentPolicy;
 use App\Policies\AttendancePolicy;
+use App\Policies\PaycheckPolicy;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -52,5 +54,6 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Work::class, WorkPolicy::class);
         Gate::policy(WorkRatio::class, WorkRatioPolicy::class);
+        Gate::policy(Paycheck::class, PaycheckPolicy::class);
     }
 }

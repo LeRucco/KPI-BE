@@ -54,6 +54,14 @@ return [
             'throw' => false,
         ],
 
+        'paycheck_file' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/paycheck'),
+            'url' => env('APP_URL') . '/paycheck',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app'),
@@ -98,6 +106,7 @@ return [
         public_path('assignment') => storage_path('app/public/assignment'),
         public_path('user') => storage_path('app/public/user'),
         public_path('permit') => storage_path('app/public/permit'),
+        public_path('paycheck') => storage_path('app/public/paycheck'),
     ],
 
 ];
