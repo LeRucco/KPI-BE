@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Models\User;
 use App\Enums\RoleEnum;
 use App\Enums\PermissionEnum;
-use Illuminate\Auth\Access\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
@@ -102,6 +101,23 @@ class UserPolicy
      * Determine whether the user can update the model.
      */
     public function updateImage(User $userAuth, User $user): bool
+    {
+        if ($userAuth->can(PermissionEnum::KPI_UPDATE->value))
+            return true;
+
+        if (
+            $userAuth->can(PermissionEnum::USER_UPDATE->value)
+            && $userAuth->id === $user->id
+        )
+            return true;
+
+        return false;
+    }
+
+    /**
+     * Determine whether the user can update the model.
+     */
+    public function updatePassword(User $userAuth, User $user): bool
     {
         if ($userAuth->can(PermissionEnum::KPI_UPDATE->value))
             return true;

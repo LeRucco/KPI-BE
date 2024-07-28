@@ -18,7 +18,8 @@ class AuthenticationController extends Controller
     public function login(UserLoginRequest $req)
     {
         if (!Auth::attempt($req->only('nrp', 'password')->toArray())) {
-            return $this->error($req->toArray(), Response::HTTP_UNAUTHORIZED, 'TODO Credentials do not match');
+            // return $this->error($req->toArray(), Response::HTTP_UNAUTHORIZED, 'TODO Credentials do not match');
+            return $this->error([], Response::HTTP_UNAUTHORIZED, 'TODO Credentials do not match');
         }
 
         /** @var App\Models\User | null */

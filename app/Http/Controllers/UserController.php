@@ -4,12 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Data\User\UserCreateRequest;
 use App\Data\User\UserDropdownResponse;
-use App\Data\User\UserImageResponse;
 use App\Models\User;
 use App\Enums\PermissionEnum;
 use Illuminate\Http\Response;
 use App\Data\User\UserResponse;
 use App\Data\User\UserUpdateImageRequest;
+use App\Data\User\UserUpdatePasswordRequest;
 use App\Data\User\UserUpdateRequest;
 use App\Enums\RoleEnum;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +17,7 @@ use App\Interfaces\ApiBasicReadInterfaces;
 use Illuminate\Support\Facades\Gate;
 use Spatie\LaravelData\DataCollection;
 use Spatie\LaravelData\PaginatedDataCollection;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller implements ApiBasicReadInterfaces
 {
@@ -108,6 +109,30 @@ class UserController extends Controller implements ApiBasicReadInterfaces
         )->toArray();
 
         return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
+    public function updatePassword(UserUpdatePasswordRequest $req)
+    {
+        /** @var \App\Models\User */
+        $userAuth = Auth::user();
+
+        Gate::authorize('updatePassword', [User::class, $userAuth]);
+
+        // return $req;
+        // return Hash::make($req->password);
+
+        (bool) $isSuccess = $userAuth->update([
+            'password' => Hash::make($req->password)
+        ]);
+
+        (array) $data = UserResponse::from(
+            $userAuth
+        )->toArray();
+
+        if ($isSuccess)
+            return $this->success($data, Response::HTTP_OK, 'TODO');
+
+        return $this->error($data, Response::HTTP_BAD_REQUEST, 'TODO');
     }
 
 
