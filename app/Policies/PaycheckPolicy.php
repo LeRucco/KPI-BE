@@ -125,6 +125,29 @@ class PaycheckPolicy
         return false;
     }
 
+    public function user(User $user)
+    {
+        if ($user->canAny(
+            PermissionEnum::KPI_READ->value,
+            PermissionEnum::KPI_READTRASHED->value,
+        ))
+            return true;
+
+        if (
+            $user->canAny([
+                PermissionEnum::PAYCHECK_READ->value,
+                PermissionEnum::PAYCHECK_READTRASHED->value
+            ])
+            && $user->canAny([
+                PermissionEnum::PAYCHECKFILE_READ->value,
+                PERMISSIONENUM::PAYCHECKFILE_READTRASHED->value
+            ])
+        )
+            return true;
+
+        return false;
+    }
+
     public function create(User $user): bool
     {
         if ($user->can(PermissionEnum::KPI_CREATE->value))
@@ -161,5 +184,17 @@ class PaycheckPolicy
     //     return false;
     // }
 
-    // pub
+    public function delete(User $user, Paycheck $paycheck): bool
+    {
+        if ($user->can(PermissionEnum::KPI_DELETE->value))
+            return true;
+
+        if ($user->canAny([
+            PermissionEnum::PAYCHECK_DELETE->value,
+            PermissionEnum::PAYCHECKFILE_DELETE->value
+        ]))
+            return true;
+
+        return false;
+    }
 }

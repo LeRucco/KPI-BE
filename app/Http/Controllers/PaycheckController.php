@@ -10,6 +10,7 @@ use App\Data\Paycheck\PaycheckResponse;
 use App\Interfaces\ApiBasicReadInterfaces;
 use App\Data\Paycheck\PaycheckCreateRequest;
 use App\Data\Paycheck\PaycheckReportRequest;
+use App\Data\Paycheck\PaycheckUserRequest;
 use App\Data\Paycheck\PaycheckYearlyRequest;
 use App\Exceptions\ModelTrashedException;
 use Illuminate\Database\Query\Builder;
@@ -89,6 +90,7 @@ class PaycheckController extends Controller implements ApiBasicReadInterfaces
             ->orderBy('id', 'desc')
             ->get();
 
+
         (array) $data = PaycheckResponse::collect(
             $result,
             DataCollection::class
@@ -97,11 +99,45 @@ class PaycheckController extends Controller implements ApiBasicReadInterfaces
         return $this->success($data, Response::HTTP_OK, 'TODO');
     }
 
-    // TODO throw exception untuk mencegah duplikasi
+    public function user(PaycheckUserRequest $req)
+    {
+        $date = $req->date->format('Y-m');
+        $userId = $req->userId;
+
+        $result = DB::table('paychecks')
+            ->where('user_id', '=', $userId)
+            ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $date)
+            ->first();
+
+        if ($result === null)
+            return $this->success(null, Response::HTTP_OK, 'TODO');
+
+        (array) $data = PaycheckResponse::fromStdClass(
+            $result
+        )->toArray();
+
+        return $this->success($data, Response::HTTP_OK, 'TODO');
+    }
+
     public function store(PaycheckCreateRequest $req)
     {
         Gate::authorize('create', [Paycheck::class]);
         Gate::authorize('createFiles', [Paycheck::class]);
+
+        $date = $req->date->format('Y-m');
+        $userId = $req->userId;
+
+        /** @var \App\Models\Paycheck */
+        $paycheck = Paycheck::query()
+            ->where('user_id', '=', $userId)
+            ->where(DB::raw("DATE_FORMAT(date, '%Y-%m')"), $date)
+            ->first();
+
+        if ($paycheck !== null) {
+            (bool) $isSuccess = $paycheck->forceDelete();
+            if (!$isSuccess)
+                return $this->error(null, Response::HTTP_BAD_REQUEST, 'TODO');
+        }
 
         /** @var \App\Models\Paycheck */
         $paycheck = Paycheck::create($req->except('files')->toArray());
@@ -129,12 +165,13 @@ class PaycheckController extends Controller implements ApiBasicReadInterfaces
 
     public function destroy(Paycheck $paycheck)
     {
-        // TODO Policy
+        Gate::authorize('delete', [Paycheck::class, $paycheck]);
 
         if ($paycheck->trashed())
             throw ModelTrashedException::alreadySoftDeleted();
 
-        (bool) $isSuccess = $paycheck->delete();
+        (bool) $isSuccess = $paycheck->forceDelete();
+        // (bool) $isSuccess = $paycheck->delete();
         (array) $data = PaycheckResponse::from(
             $paycheck
         )

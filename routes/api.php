@@ -93,6 +93,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::apiResource(PaycheckController::route, PaycheckController::class);
     Route::post(PaycheckController::route . '/{paycheck}/restore', [PaycheckController::class, 'restore']);
     Route::get(PaycheckController::route . '/admin/report', [PaycheckController::class, 'report']);
+    Route::get(PaycheckController::route . '/admin/user', [PaycheckController::class, 'user']);
     Route::get(PaycheckController::route . '/emp/yearly', [PaycheckController::class, 'yearly']);
 });
 
