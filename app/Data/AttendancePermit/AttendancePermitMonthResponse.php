@@ -6,6 +6,7 @@ use App\Models\Custom\MyCarbonImmutableDate;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 use Spatie\LaravelData\Resource;
+use stdClass;
 
 
 class AttendancePermitMonthResponse extends Resource
@@ -19,26 +20,25 @@ class AttendancePermitMonthResponse extends Resource
         public string $color1,
 
         public ?string $color2,
-    ) {
-    }
+    ) {}
 
-    public static function fromArray(array $month): AttendancePermitMonthResponse
-    {
-        return new AttendancePermitMonthResponse(
-            $month['source'],
-            $month['date'],
-            $month['color1'],
-            $month['color2'],
-        );
-    }
-
-    // public static function fromStdClass(stdClass $month): AttendanceMonthResponse
+    // public static function fromArray(array $month): AttendancePermitMonthResponse
     // {
-    //     return new AttendanceMonthResponse(
-    //         $month->source,
-    //         $month->date,
-    //         $month->color1,
-    //         $month->color2,
+    //     return new AttendancePermitMonthResponse(
+    //         $month['source'],
+    //         $month['date'],
+    //         $month['color1'],
+    //         $month['color2'],
     //     );
     // }
+
+    public static function fromStdClass(stdClass $month): AttendancePermitMonthResponse
+    {
+        return new AttendancePermitMonthResponse(
+            $month->source,
+            $month->date,
+            $month->color1,
+            $month->color2,
+        );
+    }
 }

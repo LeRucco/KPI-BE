@@ -57,7 +57,6 @@ class DevController extends Controller
 
     public function attendanceExport(AttendanceExportRequest $req)
     {
-        // TODO Harus discuss lebih lanjut, Admin kalo mau generate excel.
         // Harus milih multiple user, di Flutter pake Checkbox
         // if (empty($req->usersId)) {
         //     /** @var \Illuminate\Support\Collection */
