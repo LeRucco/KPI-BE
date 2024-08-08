@@ -65,10 +65,14 @@ class AttendancePermitController extends Controller
 
                 ', [
                     AttendancePermitSourceEnum::ATTENDANCE->value,
-                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::ATTEND->value,
-                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::LATE->value,
-                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::ATTEND->value,
-                    AttendanceStatusEnum::REJECT->value, CalenderColorEnum::EARLY_LEAVE->value,
+                    AttendanceStatusEnum::REJECT->value,
+                    CalenderColorEnum::ATTEND->value,
+                    AttendanceStatusEnum::REJECT->value,
+                    CalenderColorEnum::LATE->value,
+                    AttendanceStatusEnum::REJECT->value,
+                    CalenderColorEnum::ATTEND->value,
+                    AttendanceStatusEnum::REJECT->value,
+                    CalenderColorEnum::EARLY_LEAVE->value,
                 ])
                 ->get();
         } else if ($req->source == AttendancePermitSourceEnum::PERMIT) {
@@ -89,9 +93,12 @@ class AttendancePermitController extends Controller
                     end as color
                 ', [
                     AttendancePermitSourceEnum::PERMIT->value,
-                    PermitTypeEnum::SICK->value, CalenderColorEnum::SICK_OR_LEAVE,
-                    PermitTypeEnum::PAID_LEAVE->value, CalenderColorEnum::PAID_LEAVE,
-                    PermitTypeEnum::LEAVE->value, CalenderColorEnum::SICK_OR_LEAVE,
+                    PermitTypeEnum::SICK->value,
+                    CalenderColorEnum::SICK_OR_LEAVE,
+                    PermitTypeEnum::PAID_LEAVE->value,
+                    CalenderColorEnum::PAID_LEAVE,
+                    PermitTypeEnum::LEAVE->value,
+                    CalenderColorEnum::SICK_OR_LEAVE,
                 ])
                 ->get();
         }
@@ -323,12 +330,10 @@ class AttendancePermitController extends Controller
 
         $selectedMonthYear = $req->date->format('Y-m'); // yyyy-MM
 
-        /// Attendance
         $colorSuccess = CalenderColorEnum::ATTEND->value; // Success clock in and clock out
         $colorLate = CalenderColorEnum::LATE->value;
         $colorEarlyLeave = CalenderColorEnum::EARLY_LEAVE->value;
 
-        /// Permit
         $colorSick = CalenderColorEnum::SICK_OR_LEAVE->value;
         $colorLeave = CalenderColorEnum::SICK_OR_LEAVE->value;
         $colorPaidLeave = CalenderColorEnum::PAID_LEAVE->value;
@@ -337,91 +342,75 @@ class AttendancePermitController extends Controller
         $permitTypePaidLeave = PermitTypeEnum::PAID_LEAVE->value;
         $permitTypeLeave = PermitTypeEnum::LEAVE->value;
 
-        /** @var \App\Models\User */
         $userAuth = Auth::user();
 
-        $result = DB::select("
-        select *
-        from (
-            select
-                :source_attendance as source
-                , final_attendance.*
-            from (
-                select
-                    DATE(combine_clock.clock) as date
-                    , group_concat(combine_clock.color1) as color1
-                    , group_concat(combine_clock.color2) as color2
-                -- 	, COUNT(*) as clockaa
-                from (
-                    select
-                        IFNULL(a.clock_in, a.clock_out) as clock
-                        , case
-                            when a.clock_in is not null AND a.status != :status1 then :color_success1
-                            when a.clock_in is not null AND a.status = :status2 then :color_failed1
-                            else NULL
-                        end as color1
-                        , case
-                            when a.clock_out  is not null AND a.status != :status3 then :color_success2
-                            when a.clock_out is not null AND a.status = :status4 then :color_failed2
-                            else null
-                        end as color2
-                        , a.*
-                    from attendances a
-                    where 1 = 1
-                        and a.user_id = :user_id1
-                        and
-                        (
-                            DATE_FORMAT(a.clock_in, '%Y-%m') = :selected_month_year1
-                            or
-                            DATE_FORMAT(a.clock_out, '%Y-%m') = :selected_month_year2
-                        )
-                ) as combine_clock
-                group by DATE(clock)
-                having COUNT(*) >= 2
-            ) as final_attendance
-            union all
-            select
-                :source_permit as source
-                , DATE(p.date) as date
-                , case
-                    when type = :type_sick then :color_sick
-                    when type = :type_paid_leave then :color_paid_leave
-                    when type = :type_leave then :color_leave
-                    else NULL
-                end as color1
-                , null as color2
-            from permits p
-            where 1 = 1
-                and p.user_id = :user_id2
-                and
-                (
-                    DATE_FORMAT(p.date, '%Y-%m') = :selected_month_year3
-                )
-        ) as final
-        order by final.date ASC
-        ", [
-            'source_attendance' => AttendancePermitSourceEnum::ATTENDANCE->value,
-            'source_permit'     => AttendancePermitSourceEnum::PERMIT->value,
-            'user_id1'  => $userAuth->id,
-            'user_id2'  => $userAuth->id,
-            'selected_month_year1' => $selectedMonthYear,
-            'selected_month_year2' => $selectedMonthYear,
-            'selected_month_year3' => $selectedMonthYear,
-            'status1'   => AttendanceStatusEnum::REJECT->value,
-            'status2'   => AttendanceStatusEnum::REJECT->value,
-            'status3'   => AttendanceStatusEnum::REJECT->value,
-            'status4'   => AttendanceStatusEnum::REJECT->value,
-            'color_success1'    => $colorSuccess,
-            'color_failed1'     => $colorLate,
-            'color_success2'    => $colorSuccess,
-            'color_failed2'     => $colorEarlyLeave,
-            'color_sick'        => $colorSick,
-            'color_paid_leave'  => $colorPaidLeave,
-            'color_leave'       => $colorLeave,
-            'type_sick'         => $permitTypeSick,
-            'type_paid_leave'   => $permitTypePaidLeave,
-            'type_leave'        => $permitTypeLeave,
-        ]);
+        $attendanceQuery = DB::table('attendances as a')
+            ->selectRaw("
+        IFNULL(a.clock_in, a.clock_out) as clock,
+        CASE
+            WHEN a.clock_in IS NOT NULL AND a.status != :status1 THEN :color_success1
+            WHEN a.clock_in IS NOT NULL AND a.status = :status2 THEN :color_failed1
+            ELSE NULL
+        END as color1,
+        CASE
+            WHEN a.clock_out IS NOT NULL AND a.status != :status3 THEN :color_success2
+            WHEN a.clock_out IS NOT NULL AND a.status = :status4 THEN :color_failed2
+            ELSE NULL
+        END as color2,
+        a.*
+    ", [
+                'status1' => AttendanceStatusEnum::REJECT->value,
+                'status2' => AttendanceStatusEnum::REJECT->value,
+                'status3' => AttendanceStatusEnum::REJECT->value,
+                'status4' => AttendanceStatusEnum::REJECT->value,
+                'color_success1' => $colorSuccess,
+                'color_failed1' => $colorLate,
+                'color_success2' => $colorSuccess,
+                'color_failed2' => $colorEarlyLeave
+            ])
+            ->where('a.user_id', $userAuth->id)
+            ->where(function ($query) use ($selectedMonthYear) {
+                $query->whereRaw("DATE_FORMAT(a.clock_in, '%Y-%m') = ?", [$selectedMonthYear])
+                    ->orWhereRaw("DATE_FORMAT(a.clock_out, '%Y-%m') = ?", [$selectedMonthYear]);
+            });
+
+        $finalAttendanceQuery = DB::table(DB::raw("({$attendanceQuery->toSql()}) as combine_clock"))
+            ->selectRaw("
+        DATE(combine_clock.clock) as date,
+        GROUP_CONCAT(combine_clock.color1) as color1,
+        GROUP_CONCAT(combine_clock.color2) as color2
+    ")
+            ->groupBy(DB::raw("DATE(clock)"))
+            ->havingRaw("COUNT(*) >= 2");
+
+        $permitQuery = DB::table('permits as p')
+            ->selectRaw("
+        ? as source,
+        DATE(p.date) as date,
+        CASE
+            WHEN p.type = ? THEN ?
+            WHEN p.type = ? THEN ?
+            WHEN p.type = ? THEN ?
+            ELSE NULL
+        END as color1,
+        NULL as color2
+    ", [
+                AttendancePermitSourceEnum::PERMIT->value,
+                $permitTypeSick,
+                $colorSick,
+                $permitTypePaidLeave,
+                $colorPaidLeave,
+                $permitTypeLeave,
+                $colorLeave
+            ])
+            ->where('p.user_id', $userAuth->id)
+            ->whereRaw("DATE_FORMAT(p.date, '%Y-%m') = ?", [$selectedMonthYear]);
+
+        $result = DB::table(DB::raw("({$finalAttendanceQuery->toSql()}) as final_attendance"))
+            ->selectRaw("? as source, final_attendance.*", [AttendancePermitSourceEnum::ATTENDANCE->value])
+            ->unionAll($permitQuery)
+            ->orderBy('date', 'asc')
+            ->get();
 
         (array) $data = AttendancePermitMonthResponse::collect(
             $result,
