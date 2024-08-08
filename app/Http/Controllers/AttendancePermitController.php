@@ -358,7 +358,7 @@ class AttendancePermitController extends Controller
             ELSE NULL
         END as color2,
         a.*
-    ", [
+        ", [
                 'status1' => AttendanceStatusEnum::REJECT->value,
                 'status2' => AttendanceStatusEnum::REJECT->value,
                 'status3' => AttendanceStatusEnum::REJECT->value,
@@ -379,7 +379,7 @@ class AttendancePermitController extends Controller
         DATE(combine_clock.clock) as date,
         GROUP_CONCAT(combine_clock.color1) as color1,
         GROUP_CONCAT(combine_clock.color2) as color2
-    ")
+        ")
             ->groupBy(DB::raw("DATE(clock)"))
             ->havingRaw("COUNT(*) >= 2");
 
@@ -394,7 +394,7 @@ class AttendancePermitController extends Controller
             ELSE NULL
         END as color1,
         NULL as color2
-    ", [
+        ", [
                 AttendancePermitSourceEnum::PERMIT->value,
                 $permitTypeSick,
                 $colorSick,
