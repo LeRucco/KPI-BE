@@ -65,16 +65,15 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
         Gate::authorize('check', [Permit::class]);
 
         $date = $req->date->format('Y-m-d');
-        $type = $req->type == null ? null : $req->type->value;
+        $type = $req->type;
         $status = $req->status == null ? null : $req->status->value;
         $userId = $req->userId;
 
         $result = DB::table('permits')
             ->join('users', 'permits.user_id', '=', 'users.id')
-            ->whereDate('permits.date', '=', $date)
-            // ->when(function (Builder $query) use ($date) {
-            //     $query->whereDate('permits.date', '=', $date);
-            // })
+            ->where(function (Builder $query) use ($date) {
+                $query->whereDate('permits.date', '=', $date);
+            })
             ->when($type, function (Builder $query, int $type) {
                 $query->where('permits.type', '=', $type);
             })
