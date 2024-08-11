@@ -16,9 +16,6 @@ class UserUpdateRequest extends Data
 
     public function __construct(
 
-        #[Max(20)]
-        public ?string $position,
-
         #[Max(50)]
         public string $fullName,
 
@@ -63,6 +60,5 @@ class UserUpdateRequest extends Data
         #[Max(20)]
         public ?string $status,
 
-    ) {
-    }
+    ) {}
 }
