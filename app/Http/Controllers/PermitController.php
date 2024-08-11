@@ -326,7 +326,6 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
         $users = User::withoutRole([
             RoleEnum::SUPER_ADMIN->value,
             RoleEnum::ADMIN->value,
-            RoleEnum::DEVELOPER->value
         ])->get();
 
         $totalAlpha = $this->number_of_working_days($fromDate, $toDate) - $totalAttend;

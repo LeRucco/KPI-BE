@@ -35,9 +35,6 @@ class RolesAndPermissionsSeeder extends Seeder
             PermissionEnum::KPI_DELETE,
         ]);
 
-        $roleDeveloper = Role::findByName(RoleEnum::DEVELOPER->value);
-        $roleDeveloper->givePermissionTo($permissionCollection->pluck('name'));
-
         $roleEmployee = Role::findByName(RoleEnum::EMPLOYEE->value);
         $roleEmployee->givePermissionTo([
             PermissionEnum::USER_READ,

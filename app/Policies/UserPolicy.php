@@ -22,7 +22,6 @@ class UserPolicy
 
         if (
             $userAuth->hasRole(RoleEnum::ADMIN->value)
-            || $userAuth->hasRole(RoleEnum::DEVELOPER->value)
         )
             return true;
 

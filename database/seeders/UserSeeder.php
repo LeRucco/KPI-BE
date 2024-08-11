@@ -27,10 +27,10 @@ class UserSeeder extends Seeder
         ])->assignRole(RoleEnum::ADMIN);
 
         User::create([
-            'nrp' => 'developer',
+            'nrp' => 'devadmin',
             'full_name' => 'developer',
             'password' => Hash::make('qwerty')
-        ])->assignRole(RoleEnum::DEVELOPER);
+        ])->assignRole(RoleEnum::ADMIN);
 
         /// Employee
         User::create([

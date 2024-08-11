@@ -314,7 +314,6 @@ class AttendancePermitController extends Controller
         $users = User::withoutRole([
             RoleEnum::SUPER_ADMIN->value,
             RoleEnum::ADMIN->value,
-            RoleEnum::DEVELOPER->value
         ])->get();
 
         $totalAlpha = $users->count() - $totalAttend;

@@ -52,7 +52,7 @@ class UserController extends Controller implements ApiBasicReadInterfaces
         Gate::authorize('viewAny', [User::class]);
         (array) $data = UserDropdownResponse::collect(
             $this->readTrashedOrNot()
-                ->withoutRole([RoleEnum::SUPER_ADMIN->value, RoleEnum::ADMIN->value, RoleEnum::DEVELOPER->value])
+                ->withoutRole([RoleEnum::SUPER_ADMIN->value, RoleEnum::ADMIN->value])
                 ->orderBy('id', 'asc')
                 ->get(['id', 'nrp', 'full_name']),
             DataCollection::class,
