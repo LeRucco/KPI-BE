@@ -65,7 +65,7 @@ class PermitController extends Controller implements ApiBasicReadInterfaces
         Gate::authorize('check', [Permit::class]);
 
         $date = $req->date->format('Y-m-d');
-        $type = $req->type->value;
+        $type = $req->type == null ? null : $req->type->value;
         $status = $req->status == null ? null : $req->status->value;
         $userId = $req->userId;
 
